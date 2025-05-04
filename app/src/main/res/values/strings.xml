@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aplicación Gestión Stock Imprenta</string>
+
+    <!-- Login y registro -->
+    <string name="register">Registrarse</string>
+    <string name="email">Correo electrónico</string>
+    <string name="passwd">Contraseña</string>
+
+    <string-array name="roles_array">
+        <item>admin</item>
+        <item>fábrica</item>
+        <item>contabilidad</item>
+    </string-array>
+
+    <!-- MainActivity -->
+    <string name="mensaje_default">Cargando…</string>
+    <string name="rol_no_reconocido">Rol no reconocido</string>
+    <string name="ver_stock">Ver productos en stock</string>
+    <string name="actualizar_stock">Actualizar stock</string>
+    <string name="solicitar_material">Solicitar material</string>
+
+    <string name="bienvenido_admin">Bienvenido %1$s, has accedido como administrador</string>
+    <string name="bienvenido_fabrica">Bienvenido %1$s, has accedido al área de fábrica</string>
+    <string name="bienvenido_contabilidad">Bienvenido %1$s, has accedido al área de contabilidad</string>
+    <string name="bienvenido_samuel_has_accedido_como_administrador">Bienvenido Samuel, has accedido como administrador</string>
+</resources>

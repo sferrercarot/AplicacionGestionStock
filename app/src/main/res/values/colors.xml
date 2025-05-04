@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores base genéricos -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Fondo y textos -->
+    <color name="background">#F4F2F7</color>        <!-- Fondo general de pantallas -->
+    <color name="textPrimary">#2D2D2D</color>       <!-- Texto principal sobre fondo claro -->
+    <color name="textSecondary">#777777</color>     <!-- Texto secundario o subtítulos -->
+
+    <!-- Paleta principal de la app -->
+    <color name="primary">#7A5EA7</color>           <!-- Color principal (botones, barras) -->
+    <color name="onPrimary">@color/white</color>    <!-- Texto/iconos sobre primary -->
+    <color name="primaryVariant">#5E3E90</color>    <!-- Variante más oscura de primary -->
+
+    <!-- Paleta secundaria (opcional) -->
+    <color name="secondary">#FFC107</color>         <!-- Destacados, acentos -->
+    <color name="onSecondary">#FF000000</color>     <!-- Texto/iconos sobre secondary -->
+    <color name="secondaryVariant">#FFA000</color>  <!-- Variante más oscura de secondary -->
+
+    <!-- Error y estados -->
+    <color name="error">#B00020</color>
+    <color name="onError">@color/white</color>
+    <color name="warning">#FFA000</color>
+    <color name="info">#2196F3</color>
+
+    <!-- Para elementos deshabilitados -->
+    <color name="disabled">#BDBDBD</color>
+
+</resources>
