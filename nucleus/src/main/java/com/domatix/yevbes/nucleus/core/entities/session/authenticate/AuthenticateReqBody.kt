@@ -3,15 +3,13 @@ package com.domatix.yevbes.nucleus.core.entities.session.authenticate
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class AuthenticateReqBody(
-
-        @field:Expose
-        @field:SerializedName("id")
-        val id: String = "0",
-
+/**
+ * Envoltorio JSON-RPC para authenticate
+ */
+data class AuthenticateReqBody @JvmOverloads constructor(
         @field:Expose
         @field:SerializedName("jsonrpc")
-        val jsonRPC: String = "2.0",
+        val jsonrpc: String = "2.0",
 
         @field:Expose
         @field:SerializedName("method")
@@ -19,5 +17,5 @@ data class AuthenticateReqBody(
 
         @field:Expose
         @field:SerializedName("params")
-        val params: AuthenticateParams = AuthenticateParams()
+        var params: AuthenticateParams = AuthenticateParams()
 )

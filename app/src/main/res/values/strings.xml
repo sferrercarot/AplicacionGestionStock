@@ -19,6 +19,10 @@
     <string name="ver_stock">Ver productos en stock</string>
     <string name="actualizar_stock">Actualizar stock</string>
     <string name="solicitar_material">Solicitar material</string>
+    <string name="mensaje_bienvenida">Bienvenido usuario</string>
+    <string name="stock_icon">Icono de gestión de stock</string>
+
+
 
     <string name="bienvenido_admin">Bienvenido %1$s, has accedido como administrador</string>
     <string name="bienvenido_fabrica">Bienvenido %1$s, has accedido al área de fábrica</string>

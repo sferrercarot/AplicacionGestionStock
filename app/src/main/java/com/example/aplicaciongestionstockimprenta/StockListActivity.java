@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,6 +35,12 @@ public class StockListActivity extends AppCompatActivity {
     private OdooService service;
     private List<Product> productos = new ArrayList<>();
 
+    private String sessionId;
+    private String rol;
+    private int uid;
+    private String usuario;
+    private String password;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,31 +48,16 @@ public class StockListActivity extends AppCompatActivity {
 
         Log.d("STOCK", "Entrando en StockListActivity");
 
-        recyclerView = findViewById(R.id.rvProducts);
-        progressBar = findViewById(R.id.progressBar);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        // ✅ Recuperar primero los datos del Intent (¡IMPORTANTE!)
+        uid = getIntent().getIntExtra("uid", -1);
+        usuario = getIntent().getStringExtra("usuario");
+        password = getIntent().getStringExtra("password");
+        sessionId = getIntent().getStringExtra("sessionId");
+        rol = getIntent().getStringExtra("rol");
 
-        adapter = new ProductsAdapter(productos);
-        recyclerView.setAdapter(adapter);
-
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(190, TimeUnit.SECONDS)
-                .readTimeout(190, TimeUnit.SECONDS)
-                .build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://50.85.209.163:8069/")
-                .client(client)
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        service = retrofit.create(OdooService.class);
-
-        // ✅ Obtener datos reales del login
-        int uid = getIntent().getIntExtra("uid", -1);
-        String usuario = getIntent().getStringExtra("usuario");
-        String password = getIntent().getStringExtra("password");
+        Log.d("STOCK", "Session ID: " + sessionId);
+        Log.d("STOCK", "Rol recibido: " + rol);
+        Log.d("STOCK", "UID: " + uid + ", Usuario: " + usuario);
 
         if (uid == -1 || usuario == null || password == null) {
             Toast.makeText(this, "Datos de sesión no válidos", Toast.LENGTH_LONG).show();
@@ -73,16 +65,49 @@ public class StockListActivity extends AppCompatActivity {
             return;
         }
 
-        cargarProductos(uid, password);
+        // Inicializar UI
+        recyclerView = findViewById(R.id.rvProducts);
+        progressBar = findViewById(R.id.progressBar);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ProductsAdapter(productos);
+        recyclerView.setAdapter(adapter);
+
+        // ✅ Crear Retrofit con interceptor que incluye la cookie
+        OkHttpClient clientWithCookie = new OkHttpClient.Builder()
+                .connectTimeout(190, TimeUnit.SECONDS)
+                .readTimeout(190, TimeUnit.SECONDS)
+                .addInterceptor(chain -> {
+                    Request original = chain.request();
+                    Request request = original.newBuilder()
+                            .header("Content-Type", "application/json")
+                            .header("Cookie", sessionId) // <- Ya tiene valor aquí
+                            .build();
+                    return chain.proceed(request);
+                })
+                .build();
+
+        Retrofit retrofitWithCookie = new Retrofit.Builder()
+                .baseUrl("http://50.85.209.163:8069/")
+                .client(clientWithCookie)
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        service = retrofitWithCookie.create(OdooService.class);
+
+        // Cargar productos
+        cargarProductos();
     }
 
-    private void cargarProductos(int uid, String password) {
+    private void cargarProductos() {
         progressBar.setVisibility(View.VISIBLE);
 
         JsonObject body = OdooRequestBuilder.buildSearchReadRequest(
                 "gestion_almacen", uid, password, "gestion_almacen.producto",
                 new String[]{"id", "name", "cantidad_stock", "stock_bajo"}
         );
+
+        Log.d("STOCK", "JSON enviado a Odoo: " + body.toString());
 
         service.searchRead(body).enqueue(new Callback<JsonObject>() {
             @Override
@@ -92,24 +117,30 @@ public class StockListActivity extends AppCompatActivity {
                 try {
                     if (response.isSuccessful() && response.body() != null) {
                         JsonObject json = response.body();
-                        Log.d("STOCK", "Respuesta JSON: " + json.toString());
+                        Log.d("STOCK", "Respuesta JSON completa: " + json.toString());
 
                         if (json.has("result") && json.get("result").isJsonArray()) {
                             JsonArray resultArray = json.getAsJsonArray("result");
+                            Log.d("STOCK", "Cantidad de productos recibidos: " + resultArray.size());
+
                             productos.clear();
                             for (JsonElement elem : resultArray) {
-                                JsonObject p = elem.getAsJsonObject();
-                                int id = p.get("id").getAsInt();
-                                String name = p.get("name").getAsString();
-                                int stock = p.get("cantidad_stock").getAsInt();
-                                boolean bajo = p.has("stock_bajo") && p.get("stock_bajo").getAsBoolean();
-                                productos.add(new Product(id, name, stock, bajo));
+                                if (elem.isJsonObject()) {
+                                    JsonObject p = elem.getAsJsonObject();
+                                    int id = p.has("id") ? p.get("id").getAsInt() : -1;
+                                    String name = p.has("name") ? p.get("name").getAsString() : "Sin nombre";
+                                    int stock = p.has("cantidad_stock") ? p.get("cantidad_stock").getAsInt() : 0;
+                                    boolean bajo = p.has("stock_bajo") && p.get("stock_bajo").getAsBoolean();
+                                    productos.add(new Product(id, name, stock, bajo));
+                                }
                             }
                             adapter.notifyDataSetChanged();
                         } else {
-                            Toast.makeText(StockListActivity.this, "Sin resultados para mostrar", Toast.LENGTH_SHORT).show();
+                            Log.w("STOCK", "Respuesta sin campo 'result' válido");
+                            Toast.makeText(StockListActivity.this, "Respuesta inesperada", Toast.LENGTH_SHORT).show();
                         }
                     } else {
+                        Log.e("STOCK", "Respuesta fallida: " + response.code());
                         Toast.makeText(StockListActivity.this, "Error al obtener productos", Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {

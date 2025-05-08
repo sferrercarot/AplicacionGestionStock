@@ -2,6 +2,7 @@ package com.example.aplicaciongestionstockimprenta;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+
     private TextView mensajeTextView;
     private Button btnVerStock, btnActualizarStock, btnSolicitarMaterial;
 
@@ -28,27 +30,32 @@ public class MainActivity extends AppCompatActivity {
         btnActualizarStock = findViewById(R.id.btnActualizarStock);
         btnSolicitarMaterial = findViewById(R.id.btnSolicitarMaterial);
 
+        // Datos recibidos del LoginActivity
         rol = getIntent().getStringExtra("rol");
         user = getIntent().getStringExtra("usuario");
         password = getIntent().getStringExtra("password");
         uid = getIntent().getIntExtra("uid", -1);
 
-        actualizarMensajeDeBienvenida();  // <-- 🔥 aquí llamamos a tu nueva función limpia
+        Log.d("MAIN", "Rol recibido: " + rol);
+        Log.d("MAIN", "Usuario: " + user + ", UID: " + uid);
+
+        actualizarMensajeDeBienvenida();
 
         btnVerStock.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, StockListActivity.class);
             intent.putExtra("usuario", user);
             intent.putExtra("password", password);
             intent.putExtra("uid", uid);
+            intent.putExtra("rol", rol);
             startActivity(intent);
         });
 
         btnActualizarStock.setOnClickListener(v -> {
-            Toast.makeText(this, "Funcionalidad de actualizar stock pendiente", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Esta función estará disponible próximamente (Actualizar Stock)", Toast.LENGTH_SHORT).show();
         });
 
         btnSolicitarMaterial.setOnClickListener(v -> {
-            Toast.makeText(this, "Funcionalidad de solicitar material pendiente", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Esta función estará disponible próximamente (Solicitar Material)", Toast.LENGTH_SHORT).show();
         });
     }
 

@@ -29,6 +29,6 @@ data class VersionInfoResult(
     val isServerVersionEnterprise: Boolean
         get() = if (serverVersionInfo.size() > 0) serverVersionInfo[5].asString.contains("e", true) else false
 
-    val serverVersionIsSupported: Boolean
-        get() = Odoo.supportedOdooVersions.any { serverVersion.startsWith(it) }
+    //val serverVersionIsSupported: Boolean
+      //  get() = Odoo.supportedOdooVersions.any { serverVersion.startsWith(it) }
 }

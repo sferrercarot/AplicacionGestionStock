@@ -1,30 +1,24 @@
 package com.example.aplicaciongestionstockimprenta;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class OdooRequestBuilder {
 
-    public static JsonObject buildLoginRequest(String db, String username, String password) {
-        JsonObject request = new JsonObject();
-        request.addProperty("jsonrpc", "2.0");
-        request.addProperty("method", "call");
-        request.addProperty("id", 1);
-
-        JsonObject params = new JsonObject();
-        params.addProperty("service", "common");
-        params.addProperty("method", "login");
-
-        JsonArray args = new JsonArray();
-        args.add(db);
-        args.add(username);
-        args.add(password);
-        params.add("args", args);
-
-        request.add("params", params);
-        return request;
+    public static JsonObject buildLoginRequest(String db, String login, String password) {
+        JsonObject loginBody = new JsonObject();
+        loginBody.addProperty("db", db);
+        loginBody.addProperty("login", login);
+        loginBody.addProperty("password", password);
+        return loginBody;
     }
+
+
+
 
     public static JsonObject buildSearchReadRequest(String db, int uid, String password, String model, String[] fields) {
         JsonObject request = new JsonObject();
@@ -37,22 +31,23 @@ public class OdooRequestBuilder {
         params.addProperty("method", "execute_kw");
 
         JsonArray args = new JsonArray();
-        args.add(new JsonPrimitive(db));
-        args.add(new JsonPrimitive(uid));
-        args.add(new JsonPrimitive(password));
-        args.add(new JsonPrimitive(model));
-        args.add(new JsonPrimitive("search_read"));
+        args.add(db);
+        args.add(uid);
+        args.add(password);
+        args.add(model);
+        args.add("search_read");
 
-        // Dominio correctamente envuelto
+        // Dominio de búsqueda (opcional, por defecto vacío)
+        JsonArray domain = new JsonArray();
         JsonArray condition = new JsonArray();
         condition.add("id");
-        condition.add("=");
-        condition.add(uid);
-        JsonArray domain = new JsonArray();
+        condition.add("!=");
+        condition.add(0);
         domain.add(condition);
-        JsonArray domainWrapper = new JsonArray();
-        domainWrapper.add(domain);
-        args.add(domainWrapper);
+
+        JsonArray methodArgs = new JsonArray();
+        methodArgs.add(domain);
+        args.add(methodArgs);
 
         // kwargs
         JsonObject kwargs = new JsonObject();
@@ -61,13 +56,16 @@ public class OdooRequestBuilder {
             fieldsArray.add(f);
         }
         kwargs.add("fields", fieldsArray);
-        args.add(kwargs);
 
+        // Añadir args y kwargs
         params.add("args", args);
+        params.add("kwargs", kwargs);
+
         request.add("params", params);
 
         return request;
     }
+
 
     public static JsonObject buildUserGroupsRequest(String db, int uid, String password, int userId) {
         JsonObject request = new JsonObject();
@@ -104,4 +102,21 @@ public class OdooRequestBuilder {
         return request;
     }
 
+    public static List<String> getGroupNamesFromUserData(JsonObject userData) {
+        List<String> groupNames = new ArrayList<>();
+
+        if (userData.has("groups_id") && userData.get("groups_id").isJsonArray()) {
+            for (JsonElement groupElement : userData.get("groups_id").getAsJsonArray()) {
+                if (groupElement.isJsonArray()) {
+                    JsonArray groupArray = groupElement.getAsJsonArray();
+                    if (groupArray.size() >= 2) {
+                        String groupName = groupArray.get(1).getAsString();
+                        groupNames.add(groupName);
+                    }
+                }
+            }
+        }
+
+        return groupNames;
+    }
 }

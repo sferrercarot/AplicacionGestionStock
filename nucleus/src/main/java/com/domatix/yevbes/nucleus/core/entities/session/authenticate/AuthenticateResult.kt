@@ -82,8 +82,8 @@ data class AuthenticateResult(
 
     val toBundle: Bundle
         get() = Bundle().apply {
-            putString("protocol", Odoo.protocol.name)
-            putString("host", Odoo.host)
+            //putString("protocol", Odoo.protocol.name)
+            //putString("host", Odoo.host)
             putString("login", username)
             putString("password", password.encryptAES())
             putString("database", db)
