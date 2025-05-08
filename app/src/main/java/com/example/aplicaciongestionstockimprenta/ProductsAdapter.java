@@ -1,5 +1,7 @@
 package com.example.aplicaciongestionstockimprenta;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +15,15 @@ import java.util.List;
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
 
     private final List<Product> data;
+    private final Context context;
+    private final int uid;
+    private final String password;
 
-    public ProductsAdapter(List<Product> data) {
+    public ProductsAdapter(Context context, List<Product> data, int uid, String password) {
+        this.context = context;
         this.data = data;
+        this.uid = uid;
+        this.password = password;
     }
 
     @NonNull
@@ -33,13 +41,23 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
         holder.tvName.setText(p.name);
         holder.tvQty.setText("Stock: " + p.cantidad_stock);
 
-        // Puedes añadir esto si quieres resaltar cuando hay poco stock
         if (p.stock_bajo) {
             holder.tvWarning.setVisibility(View.VISIBLE);
             holder.tvWarning.setText("¡Stock por debajo del mínimo!");
         } else {
             holder.tvWarning.setVisibility(View.GONE);
         }
+
+        // OnClick → abrir detalle
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("id", p.id);
+            intent.putExtra("name", p.name);
+            intent.putExtra("cantidad_stock", p.cantidad_stock);
+            intent.putExtra("uid", uid);
+            intent.putExtra("password", password);
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -54,7 +72,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
             super(v);
             tvName = v.findViewById(R.id.tvName);
             tvQty = v.findViewById(R.id.tvQty);
-            tvWarning = v.findViewById(R.id.tvWarning);  // Asegúrate de tener esto en item_product.xml
+            tvWarning = v.findViewById(R.id.tvWarning);
         }
     }
 }

@@ -51,8 +51,8 @@ public class LoginActivity extends AppCompatActivity {
         // Cliente HTTP sin cookies
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(logging)
-                .connectTimeout(190, TimeUnit.SECONDS)
-                .readTimeout(190, TimeUnit.SECONDS)
+                .connectTimeout(1900, TimeUnit.SECONDS)
+                .readTimeout(1900, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()

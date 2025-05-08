@@ -38,21 +38,9 @@ class Retrofit2Helper(
 
     val client: OkHttpClient
         get() = OkHttpClient.Builder()
-            .connectTimeout(90, TimeUnit.SECONDS)
-            .readTimeout(90, TimeUnit.SECONDS)
-            .writeTimeout(90, TimeUnit.SECONDS)
-            .cookieJar(object : CookieJar {
-                private var cookies: List<Cookie>? = null
-
-                override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                    this.cookies = cookies
-                    Log.d("Retrofit2Helper", "Cookies guardadas: ${cookies.size}")
-                }
-
-                override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                    return cookies ?: emptyList()
-                }
-            })
+            .connectTimeout(1900, TimeUnit.SECONDS)
+            .readTimeout(1900, TimeUnit.SECONDS)
+            .writeTimeout(1900, TimeUnit.SECONDS)
             .addInterceptor { chain ->
                 val original = chain.request()
                 val request = original.newBuilder()

@@ -57,6 +57,9 @@ public class OdooRequestBuilder {
         }
         kwargs.add("fields", fieldsArray);
 
+        kwargs.addProperty("limit", 30);  // Ajusta el número si lo necesitas
+
+
         // Añadir args y kwargs
         params.add("args", args);
         params.add("kwargs", kwargs);
@@ -119,4 +122,40 @@ public class OdooRequestBuilder {
 
         return groupNames;
     }
+
+    public static JsonObject buildWriteRequest(String db, int uid, String password,
+                                               String model, int productId, String fieldName, int value) {
+        JsonObject request = new JsonObject();
+        request.addProperty("jsonrpc", "2.0");
+        request.addProperty("method", "call");
+        request.addProperty("id", 1);
+
+        JsonObject params = new JsonObject();
+        params.addProperty("service", "object");
+        params.addProperty("method", "execute_kw");
+
+        JsonArray args = new JsonArray();
+        args.add(db);
+        args.add(uid);
+        args.add(password);
+        args.add(model);
+        args.add("write");
+
+        // [ [id], { fieldName: value } ]
+        JsonArray data = new JsonArray();
+        JsonArray idList = new JsonArray();
+        idList.add(productId);
+        data.add(idList);
+
+        JsonObject values = new JsonObject();
+        values.addProperty(fieldName, value);
+        data.add(values);
+
+        args.add(data);
+        params.add("args", args);
+        request.add("params", params);
+
+        return request;
+    }
+
 }

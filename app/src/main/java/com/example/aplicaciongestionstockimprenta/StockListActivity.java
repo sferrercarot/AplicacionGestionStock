@@ -16,6 +16,8 @@ import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -31,7 +33,8 @@ public class StockListActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private ProductsAdapter adapter;
     private OdooService service;
-    private List<Product> productos = new ArrayList<>();
+    private final List<Product> productos = new ArrayList<>();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String rol;
     private int uid;
@@ -45,7 +48,6 @@ public class StockListActivity extends AppCompatActivity {
 
         Log.d("STOCK", "Entrando en StockListActivity");
 
-        // Recuperar datos del intent
         uid = getIntent().getIntExtra("uid", -1);
         usuario = getIntent().getStringExtra("usuario");
         password = getIntent().getStringExtra("password");
@@ -60,17 +62,15 @@ public class StockListActivity extends AppCompatActivity {
             return;
         }
 
-        // Inicializar UI
         recyclerView = findViewById(R.id.rvProducts);
         progressBar = findViewById(R.id.progressBar);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ProductsAdapter(productos);
+        adapter = new ProductsAdapter(this, productos, uid, password);
         recyclerView.setAdapter(adapter);
 
-        // Crear cliente Retrofit sin cabeceras especiales
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(190, TimeUnit.SECONDS)
-                .readTimeout(190, TimeUnit.SECONDS)
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -81,7 +81,6 @@ public class StockListActivity extends AppCompatActivity {
 
         service = retrofit.create(OdooService.class);
 
-        // Llamada para cargar productos
         cargarProductos();
     }
 
@@ -98,38 +97,55 @@ public class StockListActivity extends AppCompatActivity {
         service.searchRead(body).enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                progressBar.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null) {
+                    executor.execute(() -> {
+                        try {
+                            JsonObject json = response.body();
+                            Log.d("STOCK", "Respuesta JSON completa: " + json.toString());
 
-                try {
-                    if (response.isSuccessful() && response.body() != null) {
-                        JsonObject json = response.body();
-                        Log.d("STOCK", "Respuesta JSON completa: " + json.toString());
+                            List<Product> nuevosProductos = new ArrayList<>();
 
-                        if (json.has("result") && json.get("result").isJsonArray()) {
-                            JsonArray resultArray = json.getAsJsonArray("result");
-                            productos.clear();
-                            for (JsonElement elem : resultArray) {
-                                if (elem.isJsonObject()) {
-                                    JsonObject p = elem.getAsJsonObject();
-                                    int id = p.has("id") ? p.get("id").getAsInt() : -1;
-                                    String name = p.has("name") ? p.get("name").getAsString() : "Sin nombre";
-                                    int stock = p.has("cantidad_stock") ? p.get("cantidad_stock").getAsInt() : 0;
-                                    boolean bajo = p.has("stock_bajo") && p.get("stock_bajo").getAsBoolean();
-                                    productos.add(new Product(id, name, stock, bajo));
+                            if (json.has("result") && json.get("result").isJsonArray()) {
+                                JsonArray resultArray = json.getAsJsonArray("result");
+
+                                for (JsonElement elem : resultArray) {
+                                    if (elem.isJsonObject()) {
+                                        JsonObject p = elem.getAsJsonObject();
+                                        int id = p.has("id") ? p.get("id").getAsInt() : -1;
+                                        String name = p.has("name") ? p.get("name").getAsString() : "Sin nombre";
+                                        int stock = p.has("cantidad_stock") ? p.get("cantidad_stock").getAsInt() : 0;
+                                        boolean bajo = p.has("stock_bajo") && p.get("stock_bajo").getAsBoolean();
+                                        nuevosProductos.add(new Product(id, name, stock, bajo));
+                                    }
                                 }
+
+                                runOnUiThread(() -> {
+                                    productos.clear();
+                                    productos.addAll(nuevosProductos);
+                                    adapter.notifyDataSetChanged();
+                                    progressBar.setVisibility(View.GONE);
+                                });
+
+                            } else {
+                                Log.w("STOCK", "Respuesta sin campo 'result' válido");
+                                runOnUiThread(() -> {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(StockListActivity.this, "Respuesta inesperada", Toast.LENGTH_SHORT).show();
+                                });
                             }
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            Log.w("STOCK", "Respuesta sin campo 'result' válido");
-                            Toast.makeText(StockListActivity.this, "Respuesta inesperada", Toast.LENGTH_SHORT).show();
+
+                        } catch (Exception e) {
+                            Log.e("STOCK", "Error al procesar respuesta", e);
+                            runOnUiThread(() -> {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(StockListActivity.this, "Error inesperado", Toast.LENGTH_SHORT).show();
+                            });
                         }
-                    } else {
-                        Log.e("STOCK", "Respuesta fallida: " + response.code());
-                        Toast.makeText(StockListActivity.this, "Error al obtener productos", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    Log.e("STOCK", "Error al procesar respuesta", e);
-                    Toast.makeText(StockListActivity.this, "Error inesperado", Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    Log.e("STOCK", "Respuesta fallida: " + response.code());
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(StockListActivity.this, "Error al obtener productos", Toast.LENGTH_SHORT).show();
                 }
             }
 

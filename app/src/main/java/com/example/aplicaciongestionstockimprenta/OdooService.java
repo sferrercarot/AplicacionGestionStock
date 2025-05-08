@@ -36,4 +36,8 @@ public interface OdooService {
         public String usuario;
         public int id;
     }
+
+    @POST("/jsonrpc")
+    Call<JsonObject> genericWrite(@Body JsonObject body);
+
 }
