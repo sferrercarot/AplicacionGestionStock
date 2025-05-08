@@ -31,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginBtn;
     private ProgressBar progress;
     private OdooService service;
-    private final String BASE_URL = "http://50.85.209.163:8069/";
+    private final String BASE_URL = "http://50.85.209.163:8069/web/session/";
     private final String DB_NAME  = "gestion_almacen";
 
     @Override
@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        usuarioEt = findViewById(R.id.emailLoginEditText);
+        usuarioEt  = findViewById(R.id.emailLoginEditText);
         passwordEt = findViewById(R.id.passwordLoginEditText);
         loginBtn   = findViewById(R.id.loginButton);
         progress   = findViewById(R.id.progressBar);
@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
 
             // Construye petición JSON-RPC
             AuthenticateParams params = new AuthenticateParams(DB_NAME, usuario, password);
-            AuthenticateReqBody request  = new AuthenticateReqBody();
+            AuthenticateReqBody request = new AuthenticateReqBody();
             request.setParams(params);
 
             Log.d("LOGIN", "🔐 Enviando login por JSON-RPC: " + usuario);
@@ -86,15 +86,27 @@ public class LoginActivity extends AppCompatActivity {
                 public void onResponse(Call<Authenticate> call, Response<Authenticate> resp) {
                     progress.setVisibility(View.GONE);
                     loginBtn.setEnabled(true);
+
                     if (resp.isSuccessful() && resp.body() != null && resp.body().getResult() != null) {
                         int uid = resp.body().getResult().getUid();
+
+                        // ⚠️ Validamos que uid sea válido (> 0)
+                        if (uid <= 0) {
+                            Log.e("LOGIN", "❌ Login fallido. UID inválido: " + uid);
+                            Toast.makeText(LoginActivity.this,
+                                    "Usuario o contraseña incorrectos",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         Log.d("LOGIN", "✅ Login correcto. UID: " + uid);
 
-                        // Salta directamente a MainActivity sin cookies
+                        // Salta directamente a MainActivity indicando rol "admin" por ahora
                         Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                        i.putExtra("uid", uid);
-                        i.putExtra("usuario", usuario);
+                        i.putExtra("uid",      uid);
+                        i.putExtra("usuario",  usuario);
                         i.putExtra("password", password);
+                        i.putExtra("rol",      "admin");  // ← temporal
                         startActivity(i);
                         finish();
 

@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permisos -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -20,7 +21,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!-- Actividad de inicio -->
+        <!-- Punto de entrada de la app: login / splash -->
         <activity
             android:name=".InicioActivity"
             android:exported="true">
@@ -30,15 +31,29 @@
             </intent-filter>
         </activity>
 
-        <!-- Resto de actividades -->
-        <activity android:name=".MainActivity" android:exported="true" />
-        <activity android:name=".LoginActivity" android:exported="true" />
-        <activity android:name=".StockListActivity" android:exported="true" /> <!-- Añadida esta línea -->
+        <!-- Pantalla de login (si fuera una Activity aparte) -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true" />
 
-        <activity android:name=".AdminActivity" />
-        <activity android:name=".FabricaActivity" />
-        <activity android:name=".ContabilidadActivity" />
+        <!-- “Loading” que redirige según rol -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
 
+        <!-- Pantallas definitivas por rol -->
+        <activity
+            android:name=".AdminActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FabricaActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ContabilidadActivity"
+            android:exported="true" />
+        <activity
+            android:name=".StockListActivity"
+            android:exported="true" />
 
     </application>
 

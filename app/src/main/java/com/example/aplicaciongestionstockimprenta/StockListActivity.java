@@ -19,13 +19,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class StockListActivity extends AppCompatActivity {
 
@@ -35,7 +33,6 @@ public class StockListActivity extends AppCompatActivity {
     private OdooService service;
     private List<Product> productos = new ArrayList<>();
 
-    private String sessionId;
     private String rol;
     private int uid;
     private String usuario;
@@ -48,14 +45,12 @@ public class StockListActivity extends AppCompatActivity {
 
         Log.d("STOCK", "Entrando en StockListActivity");
 
-        // ✅ Recuperar primero los datos del Intent (¡IMPORTANTE!)
+        // Recuperar datos del intent
         uid = getIntent().getIntExtra("uid", -1);
         usuario = getIntent().getStringExtra("usuario");
         password = getIntent().getStringExtra("password");
-        sessionId = getIntent().getStringExtra("sessionId");
         rol = getIntent().getStringExtra("rol");
 
-        Log.d("STOCK", "Session ID: " + sessionId);
         Log.d("STOCK", "Rol recibido: " + rol);
         Log.d("STOCK", "UID: " + uid + ", Usuario: " + usuario);
 
@@ -72,30 +67,21 @@ public class StockListActivity extends AppCompatActivity {
         adapter = new ProductsAdapter(productos);
         recyclerView.setAdapter(adapter);
 
-        // ✅ Crear Retrofit con interceptor que incluye la cookie
-        OkHttpClient clientWithCookie = new OkHttpClient.Builder()
+        // Crear cliente Retrofit sin cabeceras especiales
+        OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(190, TimeUnit.SECONDS)
                 .readTimeout(190, TimeUnit.SECONDS)
-                .addInterceptor(chain -> {
-                    Request original = chain.request();
-                    Request request = original.newBuilder()
-                            .header("Content-Type", "application/json")
-                            .header("Cookie", sessionId) // <- Ya tiene valor aquí
-                            .build();
-                    return chain.proceed(request);
-                })
                 .build();
 
-        Retrofit retrofitWithCookie = new Retrofit.Builder()
+        Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://50.85.209.163:8069/")
-                .client(clientWithCookie)
-                .addConverterFactory(ScalarsConverterFactory.create())
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        service = retrofitWithCookie.create(OdooService.class);
+        service = retrofit.create(OdooService.class);
 
-        // Cargar productos
+        // Llamada para cargar productos
         cargarProductos();
     }
 
@@ -121,8 +107,6 @@ public class StockListActivity extends AppCompatActivity {
 
                         if (json.has("result") && json.get("result").isJsonArray()) {
                             JsonArray resultArray = json.getAsJsonArray("result");
-                            Log.d("STOCK", "Cantidad de productos recibidos: " + resultArray.size());
-
                             productos.clear();
                             for (JsonElement elem : resultArray) {
                                 if (elem.isJsonObject()) {

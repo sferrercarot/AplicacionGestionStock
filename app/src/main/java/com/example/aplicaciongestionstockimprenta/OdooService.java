@@ -12,7 +12,7 @@ import retrofit2.http.POST;
 
 public interface OdooService {
     @Headers("Content-Type: application/json")
-    @POST("jsonrpc")
+    @POST("authenticate")
     Call<Authenticate> login(@Body AuthenticateReqBody body);
 
     @Headers("Content-Type: application/json")
