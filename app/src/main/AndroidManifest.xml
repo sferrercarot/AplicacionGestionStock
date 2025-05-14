@@ -54,6 +54,17 @@
         <activity
             android:name=".StockListActivity"
             android:exported="true" />
+        <activity
+            android:name=".ProductDetailActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".BuzonSolicitudesActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".SolicitudMaterialActivity"
+            android:exported="true" />
 
     </application>
 

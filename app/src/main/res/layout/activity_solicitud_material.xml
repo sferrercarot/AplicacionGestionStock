@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/tvCabecera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Solicitud de material"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="16dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerProductos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/etMensajeSolicitud"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:hint="Escribe una descripción de la solicitud"
+            android:gravity="top|start"
+            android:padding="12dp"
+            android:inputType="textMultiLine"
+            android:minLines="5"
+            android:maxLines="8"
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btnEnviarSolicitud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enviar solicitud"
+            android:backgroundTint="@color/primary"
+            android:textColor="@android:color/white"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="12dp"/>
+
+    </LinearLayout>
+</ScrollView>

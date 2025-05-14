@@ -84,6 +84,13 @@ public class StockListActivity extends AppCompatActivity {
         cargarProductos();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("STOCK", "Volviendo a StockListActivity → recargando productos");
+        cargarProductos();
+    }
+
     private void cargarProductos() {
         progressBar.setVisibility(View.VISIBLE);
 

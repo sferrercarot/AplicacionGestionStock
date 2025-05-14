@@ -40,12 +40,10 @@
             android:layout_marginBottom="12dp" />
 
         <Button
-            android:id="@+id/btnActualizarStock"
-            style="@style/PrimaryButton"
+            android:id="@+id/btnVerSolicitudes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/actualizar_stock"
-            android:layout_marginBottom="12dp" />
+            android:text="Ver solicitudes" />
 
         <Button
             android:id="@+id/btnSolicitarMaterial"

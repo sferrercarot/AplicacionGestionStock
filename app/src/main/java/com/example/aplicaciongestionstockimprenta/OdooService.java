@@ -40,4 +40,16 @@ public interface OdooService {
     @POST("/jsonrpc")
     Call<JsonObject> genericWrite(@Body JsonObject body);
 
+    @POST("/api/productos")
+    Call<JsonObject> obtenerProductos(@Body JsonObject body);
+
+    @POST("/api/solicitar_material")
+    Call<JsonObject> solicitarMaterial(@Body JsonObject body);
+
+    @POST("/api/actualizar_estado_solicitud")
+    Call<JsonObject> actualizarEstadoSolicitud(@Body JsonObject body);
+
+    @POST("/api/obtener_solicitudes")
+    Call<JsonObject> obtenerSolicitudes(@Body JsonObject body);
+
 }

@@ -18,4 +18,41 @@ public class Product {
         this.cantidad_stock = cantidad_stock;
         this.stock_bajo = stock_bajo;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getCantidad_stock() {
+        return cantidad_stock;
+    }
+
+    public void setCantidad_stock(int cantidad_stock) {
+        this.cantidad_stock = cantidad_stock;
+    }
+
+    public boolean isStock_bajo() {
+        return stock_bajo;
+    }
+
+    public void setStock_bajo(boolean stock_bajo) {
+        this.stock_bajo = stock_bajo;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

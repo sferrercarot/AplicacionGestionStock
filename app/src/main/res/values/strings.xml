@@ -13,6 +13,13 @@
         <item>contabilidad</item>
     </string-array>
 
+    <string-array name="estados_solicitud">
+        <item>pendiente</item>
+        <item>leido</item>
+        <item>resuelto</item>
+    </string-array>
+
+
     <!-- MainActivity -->
     <string name="mensaje_default">Cargando…</string>
     <string name="rol_no_reconocido">Rol no reconocido</string>
