@@ -53,4 +53,6 @@ public interface OdooService {
     @POST("/api/obtener_solicitudes")
     Call<JsonObject> obtenerSolicitudes(@Body JsonObject body);
 
+    @POST("/api/borrar_solicitud")
+    Call<JsonObject> borrarSolicitud(@Body JsonObject body);
 }

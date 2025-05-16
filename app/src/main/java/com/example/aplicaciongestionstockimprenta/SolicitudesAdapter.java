@@ -3,9 +3,12 @@ package com.example.aplicaciongestionstockimprenta;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,11 +62,9 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         holder.spinnerEstado.setAdapter(adapter);
 
-        // Seleccionar el estado actual en el Spinner
         int spinnerPosition = adapter.getPosition(solicitud.getEstado());
         holder.spinnerEstado.setSelection(spinnerPosition);
 
-        // Cambiar visualmente según el estado
         String estado = solicitud.getEstado();
         if ("Pendiente".equalsIgnoreCase(estado)) {
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.estado_pendiente));
@@ -71,8 +72,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
             holder.tvUsuario.setTextColor(ContextCompat.getColor(context, android.R.color.black));
             holder.tvMensaje.setTextColor(ContextCompat.getColor(context, android.R.color.black));
             holder.tvProducto.setTextColor(ContextCompat.getColor(context, android.R.color.black));
-            holder.cardView.setCardElevation(8); // Pendiente: más destacada
-
+            holder.cardView.setCardElevation(8);
         } else if ("Resuelto".equalsIgnoreCase(estado)) {
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.estado_resuelto));
             int gris = ContextCompat.getColor(context, R.color.texto_resuelto);
@@ -80,11 +80,9 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
             holder.tvUsuario.setTextColor(gris);
             holder.tvMensaje.setTextColor(gris);
             holder.tvProducto.setTextColor(gris);
-            holder.cardView.setCardElevation(2); // Resuelto: bajita
-
+            holder.cardView.setCardElevation(2);
         }
 
-        // Detectar cambios en el Spinner
         holder.spinnerEstado.post(() -> {
             holder.spinnerEstado.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                 boolean primeraVez = true;
@@ -98,14 +96,27 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
 
                     if (!nuevoEstado.equals(estadoActual)) {
                         Log.d("SPINNER", "Cambio real detectado. Llamando a actualizarEstado...");
-                        solicitud.setEstado(capitalize(nuevoEstado)); // actualizamos estado local
-                        actualizarEstado(solicitud, nuevoEstado);     // enviamos a Odoo
+                        solicitud.setEstado(capitalize(nuevoEstado));
+                        actualizarEstado(solicitud, nuevoEstado);
                     }
                 }
 
                 @Override
                 public void onNothingSelected(android.widget.AdapterView<?> parent) {}
             });
+        });
+
+        holder.opciones.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(context, holder.opciones);
+            popup.inflate(R.menu.menu_opciones_solicitud);
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.action_borrar) {
+                    borrarSolicitud(solicitud);
+                    return true;
+                }
+                return false;
+            });
+            popup.show();
         });
     }
 
@@ -116,7 +127,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
 
         JsonObject params = new JsonObject();
         params.addProperty("id", solicitud.getId());
-        params.addProperty("estado", nuevoEstado); // minúscula: "pendiente", "resuelto"
+        params.addProperty("estado", nuevoEstado);
         body.add("params", params);
 
         Log.d("ADAPTER", "Enviando a Odoo: " + body.toString());
@@ -128,9 +139,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
                     Log.d("ADAPTER", "Respuesta exitosa de Odoo: " + response.body());
                     Toast.makeText(context, "Estado actualizado", Toast.LENGTH_SHORT).show();
                     int index = lista.indexOf(solicitud);
-                    if (index != -1) {
-                        notifyItemChanged(index); // refresca visualmente
-                    }
+                    if (index != -1) notifyItemChanged(index);
                 } else {
                     Toast.makeText(context, "Error al actualizar estado", Toast.LENGTH_SHORT).show();
                     Log.e("ADAPTER", "Respuesta fallida: " + response.code() + " - " + response.message());
@@ -141,6 +150,34 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Toast.makeText(context, "Fallo de red", Toast.LENGTH_SHORT).show();
                 Log.e("ADAPTER", "Fallo al conectar con Odoo: ", t);
+            }
+        });
+    }
+
+    private void borrarSolicitud(Solicitud solicitud) {
+        JsonObject body = new JsonObject();
+        body.addProperty("jsonrpc", "2.0");
+        body.addProperty("type", "json");
+
+        JsonObject params = new JsonObject();
+        params.addProperty("id", solicitud.getId());
+        body.add("params", params);
+
+        service.borrarSolicitud(body).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful()) {
+                    lista.remove(solicitud);
+                    notifyDataSetChanged();
+                    Toast.makeText(context, "Solicitud eliminada", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Error al eliminar solicitud", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(context, "Fallo de red al eliminar", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -159,6 +196,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
         TextView tvFecha, tvUsuario, tvMensaje, tvProducto;
         Spinner spinnerEstado;
         CardView cardView;
+        ImageView opciones;
 
         public SolicitudViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -168,6 +206,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
             tvProducto = itemView.findViewById(R.id.textProducto);
             spinnerEstado = itemView.findViewById(R.id.spinnerEstado);
             cardView = (CardView) itemView;
+            opciones = itemView.findViewById(R.id.btnOpciones);
         }
     }
 }
