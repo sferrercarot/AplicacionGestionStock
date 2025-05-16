@@ -7,12 +7,16 @@ public class Solicitud {
     private String mensaje;
     private String estado;
 
-    public Solicitud(int id, String fecha, String usuario, String mensaje, String estado) {
+    private String producto;
+
+
+    public Solicitud(int id, String fecha, String usuario, String mensaje, String estado, String producto) {
         this.id = id;
         this.fecha = fecha;
         this.usuario = usuario;
         this.mensaje = mensaje;
         this.estado = estado;
+        this.producto = producto;
     }
 
     public int getId() {
@@ -38,4 +42,9 @@ public class Solicitud {
     public void setEstado(String nuevoEstado) {
         this.estado = nuevoEstado;
     }
+
+    public String getProducto() {
+        return producto;
+    }
+
 }

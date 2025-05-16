@@ -40,6 +40,7 @@ public interface OdooService {
     @POST("/jsonrpc")
     Call<JsonObject> genericWrite(@Body JsonObject body);
 
+    @Headers("Content-Type: application/json")
     @POST("/api/productos")
     Call<JsonObject> obtenerProductos(@Body JsonObject body);
 

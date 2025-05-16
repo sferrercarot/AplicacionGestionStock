@@ -69,14 +69,19 @@ public class AdminActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+
         // Ver solicitudes
         btnVerSolicitudes.setOnClickListener(v -> {
             Log.d(TAG, "btnVerSolicitudes.onClick: lanzando BuzonSolicitudesActivity");
 
             Intent i = new Intent(AdminActivity.this, BuzonSolicitudesActivity.class);
             i.putExtra("uid", uid);
+            i.putExtra("usuario", usuario);
             i.putExtra("password", password);
+            i.putExtra("rol", rol);
+            i.putExtra("sessionId", sessionId);
             startActivity(i);
         });
+
     }
 }

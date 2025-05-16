@@ -14,10 +14,10 @@
     </string-array>
 
     <string-array name="estados_solicitud">
-        <item>pendiente</item>
-        <item>leido</item>
-        <item>resuelto</item>
+        <item>Pendiente</item>
+        <item>Resuelto</item>
     </string-array>
+
 
 
     <!-- MainActivity -->

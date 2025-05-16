@@ -54,18 +54,31 @@ public class BuzonSolicitudesActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    JsonArray results = response.body().getAsJsonArray("result");
-                    listaSolicitudes.clear();
-                    for (JsonElement elem : results) {
-                        JsonObject obj = elem.getAsJsonObject();
-                        int id = obj.get("id").getAsInt();
-                        String mensaje = obj.get("mensaje").getAsString();
-                        String fecha = obj.get("fecha").getAsString();
-                        String estado = obj.get("estado").getAsString();
-                        String usuario = obj.getAsJsonArray("usuario").get(1).getAsString();
-                        listaSolicitudes.add(new Solicitud(id, mensaje, fecha, usuario, estado));
+                    JsonObject outerResult = response.body().getAsJsonObject("result");
+
+                    // ✅ Verificamos que el objeto tenga la clave "result" interna
+                    if (outerResult != null && outerResult.has("result") && outerResult.get("result").isJsonArray()) {
+                        JsonArray results = outerResult.getAsJsonArray("result");
+
+                        listaSolicitudes.clear();
+                        for (JsonElement elem : results) {
+                            JsonObject obj = elem.getAsJsonObject();
+                            int id = obj.get("id").getAsInt();
+                            String mensaje = obj.get("mensaje").getAsString();
+                            String fecha = obj.get("fecha").getAsString();
+                            String estado = obj.get("estado").getAsString();
+                            estado = estado.substring(0, 1).toUpperCase() + estado.substring(1).toLowerCase();
+                            String usuario = obj.get("usuario").getAsString();
+                            JsonElement productoElement = obj.get("producto");
+                            String producto = (productoElement != null && !productoElement.isJsonNull())
+                                    ? productoElement.getAsString() : "Desconocido";
+
+                            listaSolicitudes.add(new Solicitud(id, mensaje, fecha, usuario, estado, producto));
+                        }
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(BuzonSolicitudesActivity.this, "📭 No hay solicitudes disponibles", Toast.LENGTH_SHORT).show();
                     }
-                    adapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(BuzonSolicitudesActivity.this, "❌ Error al cargar solicitudes", Toast.LENGTH_SHORT).show();
                 }
@@ -77,4 +90,5 @@ public class BuzonSolicitudesActivity extends AppCompatActivity {
             }
         });
     }
+
 }

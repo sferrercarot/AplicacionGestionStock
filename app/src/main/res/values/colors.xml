@@ -28,4 +28,13 @@
     <!-- Para elementos deshabilitados -->
     <color name="disabled">#BDBDBD</color>
 
+
+
+
+
+
+    <color name="estado_pendiente">#FFF59D</color> <!-- amarillo claro -->
+    <color name="estado_resuelto">#EEEEEE</color> <!-- gris claro -->
+    <color name="texto_resuelto">#9E9E9E</color> <!-- gris más oscuro para texto -->
+
 </resources>

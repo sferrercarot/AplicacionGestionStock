@@ -15,19 +15,28 @@ public class RetrofitClient {
     private static Retrofit retrofit;
     private static OkHttpClient client;
 
-    private static OkHttpClient provideClientWithCookieJar() {
+    // 🔁 CookieManager global (compartido)
+    private static final CookieManager cookieManager = new CookieManager();
+
+    static {
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+    }
+
+
+    // ✅ Cliente con cookies compartidas y reintento automático
+    public static OkHttpClient provideClientWithCookieJar() {
         if (client == null) {
-            CookieManager cookieManager = new CookieManager();
-            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
             client = new OkHttpClient.Builder()
                     .cookieJar(new JavaNetCookieJar(cookieManager))
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
+                    .retryOnConnectionFailure(true)  // 🔁 Añadidoç
                     .build();
         }
         return client;
     }
 
+    // 🌐 Retrofit con ese cliente
     public static OdooService getOdooService() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
@@ -39,15 +48,16 @@ public class RetrofitClient {
         return retrofit.create(OdooService.class);
     }
 
-    // ✅ Cliente público con logging + cookies para LoginActivity
+    // ☑️ Cliente para LoginActivity con logging y retry, usando el mismo CookieManager
     public static OkHttpClient getHttpClientWithLogging(HttpLoggingInterceptor logging) {
-        CookieManager cookieManager = new CookieManager();
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-        return new OkHttpClient.Builder()
-                .cookieJar(new JavaNetCookieJar(cookieManager))
+        return provideClientWithCookieJar().newBuilder()
                 .addInterceptor(logging)
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)  // 🔁 Añadido también aquí por claridad
                 .build();
+    }
+
+    // 📦 Por si necesitas acceso directo al cookieManager
+    public static CookieManager getCookieManager() {
+        return cookieManager;
     }
 }
