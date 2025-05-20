@@ -72,7 +72,9 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
                         String name = obj.get("name").getAsString();
                         int cantidad = obj.get("cantidad_stock").getAsInt();
                         boolean bajo = obj.get("stock_bajo").getAsBoolean();
-                        listaProductos.add(new Product(id, name, cantidad, bajo));
+                        String image = obj.get("image").getAsString();
+                        String categoria = obj.has("categoria") && !obj.get("categoria").isJsonNull() ? obj.get("categoria").getAsString() : "Otros";
+                        listaProductos.add(new Product(id, name, cantidad, bajo, image, categoria));
                     }
 
                     ArrayAdapter<Product> adapter = new ArrayAdapter<>(SolicitudMaterialActivity.this,

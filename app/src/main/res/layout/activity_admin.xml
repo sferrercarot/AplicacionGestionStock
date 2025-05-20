@@ -20,17 +20,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Icono de cabecera -->
+        <!-- Logo más grande y con margen superior -->
         <ImageView
             android:id="@+id/headerIcon"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:src="@drawable/stock_box"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:src="@drawable/logo_empresa"
             android:contentDescription="@string/app_name"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="24dp"
+            android:scaleType="fitCenter"
             tools:ignore="ContentDescription" />
 
-        <!-- Botones con estilo personalizado -->
+        <!-- Botones con mismo estilo y espaciado -->
         <Button
             android:id="@+id/btnVerStock"
             style="@style/PrimaryButton"
@@ -41,16 +43,19 @@
 
         <Button
             android:id="@+id/btnVerSolicitudes"
+            style="@style/PrimaryButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ver solicitudes" />
+            android:text="@string/ver_solicitudes"
+            android:layout_marginBottom="12dp" />
 
         <Button
             android:id="@+id/btnSolicitarMaterial"
             style="@style/PrimaryButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/solicitar_material" />
+            android:text="@string/solicitar_material"
+            android:layout_marginBottom="12dp" />
 
     </LinearLayout>
 

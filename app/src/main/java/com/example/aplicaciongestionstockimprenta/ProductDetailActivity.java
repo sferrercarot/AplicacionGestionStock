@@ -1,15 +1,20 @@
 package com.example.aplicaciongestionstockimprenta;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView; // Para mostrar la imagen
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide; // Para cargar la imagen desde Odoo
 import com.google.gson.JsonObject;
 
 import java.util.concurrent.TimeUnit;
@@ -26,9 +31,10 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvProductName, tvCurrentStock;
     private EditText etNewStock;
     private Button btnUpdateStock;
+    private ImageView imgProduct; // ImageView para la imagen del producto
 
     private int productId, currentStock, uid;
-    private String productName, password;
+    private String productName, password, imageUrl;
 
     private OdooService service;
 
@@ -41,6 +47,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvCurrentStock = findViewById(R.id.tvCurrentStock);
         etNewStock = findViewById(R.id.etNewStock);
         btnUpdateStock = findViewById(R.id.btnUpdateStock);
+        imgProduct = findViewById(R.id.imgProductoDetalle); // Imagen del producto
 
         // Recoger extras del intent
         productId = getIntent().getIntExtra("id", -1);
@@ -48,6 +55,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         currentStock = getIntent().getIntExtra("cantidad_stock", 0);
         uid = getIntent().getIntExtra("uid", -1);
         password = getIntent().getStringExtra("password");
+        imageUrl = getIntent().getStringExtra("image"); // Imagen en base64
 
         if (productId == -1 || productName == null || uid == -1 || password == null) {
             Toast.makeText(this, "Datos incompletos", Toast.LENGTH_SHORT).show();
@@ -57,6 +65,20 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         tvProductName.setText(productName);
         tvCurrentStock.setText("Stock actual: " + currentStock);
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            try {
+                String base64Data = imageUrl.contains(",") ? imageUrl.split(",")[1] : imageUrl;
+                byte[] imageBytes = Base64.decode(base64Data, Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                imgProduct.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+                imgProduct.setImageResource(R.drawable.stock_box);
+            }
+        } else {
+            imgProduct.setImageResource(R.drawable.stock_box);
+        }
 
         // Inicializar Retrofit
         OkHttpClient client = new OkHttpClient.Builder()
@@ -108,7 +130,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d("PRODUCT_DETAIL", "Stock actualizado correctamente");
                     Toast.makeText(ProductDetailActivity.this, "Stock actualizado", Toast.LENGTH_SHORT).show();
-                    finish(); // Opcional: cerrar y volver atrás
+                    finish(); // Volver atrás
                 } else {
                     Log.e("PRODUCT_DETAIL", "Fallo al actualizar stock: " + response.code());
                     Toast.makeText(ProductDetailActivity.this, "Error al actualizar", Toast.LENGTH_SHORT).show();

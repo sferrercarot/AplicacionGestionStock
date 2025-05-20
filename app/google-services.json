@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "819276852638",
-    "project_id": "usuariostfg",
-    "storage_bucket": "usuariostfg.firebasestorage.app"
+    "project_number": "834353841267",
+    "project_id": "notificacionestfg-58d08",
+    "storage_bucket": "notificacionestfg-58d08.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:819276852638:android:34e98121f6f6b3e53bba8f",
+        "mobilesdk_app_id": "1:834353841267:android:ba1c1e43cc938951749606",
         "android_client_info": {
           "package_name": "com.example.aplicaciongestionstockimprenta"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAYmXXhPLXyV9K4WlkgIB-tvwjCdE_93NQ"
+          "current_key": "AIzaSyAmYlBjdd6ycfXKy0JIhyFnqleoFMyf-zs"
         }
       ],
       "services": {

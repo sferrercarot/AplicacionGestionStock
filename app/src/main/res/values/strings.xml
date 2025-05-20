@@ -26,6 +26,7 @@
     <string name="ver_stock">Ver productos en stock</string>
     <string name="actualizar_stock">Actualizar stock</string>
     <string name="solicitar_material">Solicitar material</string>
+    <string name="ver_solicitudes">Ver solicitudes</string>
     <string name="mensaje_bienvenida">Bienvenido usuario</string>
     <string name="stock_icon">Icono de gestión de stock</string>
 

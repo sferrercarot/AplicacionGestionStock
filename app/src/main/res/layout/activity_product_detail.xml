@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
+    <!-- Imagen grande del producto -->
+    <ImageView
+        android:id="@+id/imgProductoDetalle"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="16dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/stock_box"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <TextView
         android:id="@+id/tvProductName"
         android:layout_width="0dp"
@@ -13,9 +25,10 @@
         android:text="Nombre del producto"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/imgProductoDetalle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvCurrentStock"
@@ -25,7 +38,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/tvProductName"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <EditText
         android:id="@+id/etNewStock"
@@ -36,7 +49,7 @@
         android:layout_marginTop="24dp"
         app:layout_constraintTop_toBottomOf="@id/tvCurrentStock"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/btnUpdateStock"
@@ -46,6 +59,6 @@
         android:layout_marginTop="32dp"
         app:layout_constraintTop_toBottomOf="@id/etNewStock"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

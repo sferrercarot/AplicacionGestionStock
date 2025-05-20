@@ -1,13 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ContabilidadActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center">
+    android:background="@color/background">
 
-    <TextView
-        android:text="Pantalla Contabilidad"
-        android:textSize="24sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/layoutContenido"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Logo más grande y con margen superior -->
+        <ImageView
+            android:id="@+id/headerIcon"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:src="@drawable/logo_empresa"
+            android:contentDescription="@string/app_name"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="24dp"
+            android:scaleType="fitCenter"
+            tools:ignore="ContentDescription" />
+
+        <!-- Botones con mismo estilo y espaciado -->
+        <Button
+            android:id="@+id/btnVerStock"
+            style="@style/PrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ver_stock"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnVerSolicitudes"
+            style="@style/PrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ver_solicitudes"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnSolicitarMaterial"
+            style="@style/PrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/solicitar_material"
+            android:layout_marginBottom="12dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

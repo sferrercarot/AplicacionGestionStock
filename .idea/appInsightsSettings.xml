@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.example.aplicaciongestionstockimprenta" />
-                  <option name="mobileSdkAppId" value="1:819276852638:android:34e98121f6f6b3e53bba8f" />
-                  <option name="projectId" value="usuariostfg" />
-                  <option name="projectNumber" value="819276852638" />
+                  <option name="mobileSdkAppId" value="1:834353841267:android:ba1c1e43cc938951749606" />
+                  <option name="projectId" value="notificacionestfg-58d08" />
+                  <option name="projectNumber" value="834353841267" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

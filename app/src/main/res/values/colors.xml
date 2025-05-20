@@ -10,7 +10,7 @@
     <color name="textSecondary">#777777</color>     <!-- Texto secundario o subtítulos -->
 
     <!-- Paleta principal de la app -->
-    <color name="primary">#7A5EA7</color>           <!-- Color principal (botones, barras) -->
+    <color name="primary">#4B608E</color>           <!-- Color principal (botones, barras) -->
     <color name="onPrimary">@color/white</color>    <!-- Texto/iconos sobre primary -->
     <color name="primaryVariant">#5E3E90</color>    <!-- Variante más oscura de primary -->
 
@@ -29,8 +29,16 @@
     <color name="disabled">#BDBDBD</color>
 
 
+    <color name="colorAccent">#44BD32</color>
 
 
+
+
+    <color name="colorPrimary">#D1C4B6</color>
+    <color name="colorPrimaryDark">#A89982</color>
+    <color name="colorSecondary">#C28840</color>
+    <color name="colorBackground">#F6F5F3</color>
+    <color name="colorTextPrimary">#4A4A4A</color>
 
 
     <color name="estado_pendiente">#FFF59D</color> <!-- amarillo claro -->

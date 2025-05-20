@@ -1,0 +1,53 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutFiltro"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Filtros"
+        android:textStyle="bold"
+        android:textSize="18sp" />
+
+    <CheckBox
+        android:id="@+id/filtroTodos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Todos" />
+
+    <CheckBox
+        android:id="@+id/filtroAlmacenPapel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Almacen General de Papel" />
+
+    <CheckBox
+        android:id="@+id/filtroImpresionDigital"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Impresión Digital" />
+
+    <CheckBox
+        android:id="@+id/filtroImpresionOffset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Impresión Offset" />
+
+    <CheckBox
+        android:id="@+id/filtroOtros"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Otros" />
+
+
+    <Button
+        android:id="@+id/btnAplicarFiltros"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aplicar" />
+</LinearLayout>

@@ -10,9 +10,12 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
+import com.example.aplicaciongestionstockimprenta.RolResponse;
+
+
 public interface OdooService {
     @Headers("Content-Type: application/json")
-    @POST("authenticate")
+    @POST("web/session/authenticate")
     Call<Authenticate> login(@Body AuthenticateReqBody body);
 
     @Headers("Content-Type: application/json")
@@ -30,12 +33,6 @@ public interface OdooService {
     @Headers("Content-Type: application/json")
     @POST("/web/session/get_session_info")
     Call<JsonObject> getSessionInfo(@Body JsonObject body);
-
-    class RolResponse {
-        public String rol;
-        public String usuario;
-        public int id;
-    }
 
     @POST("/jsonrpc")
     Call<JsonObject> genericWrite(@Body JsonObject body);

@@ -3,6 +3,10 @@ package com.example.aplicaciongestionstockimprenta;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -82,6 +86,47 @@ public class StockListActivity extends AppCompatActivity {
         service = retrofit.create(OdooService.class);
 
         cargarProductos();
+
+        Button btnAbrirFiltros = findViewById(R.id.btnAbrirFiltros);
+
+        btnAbrirFiltros.setOnClickListener(v -> {
+            View popupView = getLayoutInflater().inflate(R.layout.bottom_sheet_filtros, null);
+
+            PopupWindow popupWindow = new PopupWindow(
+                    popupView,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    true
+            );
+
+            popupWindow.setElevation(8f); // opcional
+            popupWindow.showAsDropDown(v);
+
+            CheckBox filtroTodos = popupView.findViewById(R.id.filtroTodos);
+            CheckBox filtroAlmacenPapel = popupView.findViewById(R.id.filtroAlmacenPapel);
+            CheckBox filtroImpresionDigital = popupView.findViewById(R.id.filtroImpresionDigital);
+            CheckBox filtroImpresionOffset = popupView.findViewById(R.id.filtroImpresionOffset);
+            CheckBox filtroOtros = popupView.findViewById(R.id.filtroOtros);
+            Button btnAplicar = popupView.findViewById(R.id.btnAplicarFiltros);
+
+            btnAplicar.setOnClickListener(aplicar -> {
+                List<String> categoriasSeleccionadas = new ArrayList<>();
+                if (!filtroTodos.isChecked()) {
+                    if (filtroAlmacenPapel.isChecked()) categoriasSeleccionadas.add("Almacen General de Papel");
+                    if (filtroImpresionDigital.isChecked()) categoriasSeleccionadas.add("Impresión Digital");
+                    if (filtroImpresionOffset.isChecked()) categoriasSeleccionadas.add("Impresión Offset");
+                    if (filtroOtros.isChecked()) categoriasSeleccionadas.add("Otros");
+                }
+                if (filtroAlmacenPapel.isChecked()) categoriasSeleccionadas.add("Almacen General de Papel");
+                if (filtroImpresionDigital.isChecked()) categoriasSeleccionadas.add("Impresión Digital");
+                if (filtroImpresionOffset.isChecked()) categoriasSeleccionadas.add("Impresión Offset");
+                if (filtroOtros.isChecked()) categoriasSeleccionadas.add("Otros");
+
+
+                adapter.filtrarPorCategorias(categoriasSeleccionadas);
+                popupWindow.dismiss();
+            });
+        });
     }
 
     @Override
@@ -96,7 +141,7 @@ public class StockListActivity extends AppCompatActivity {
 
         JsonObject body = OdooRequestBuilder.buildSearchReadRequest(
                 "gestion_almacen", uid, password, "gestion_almacen.producto",
-                new String[]{"id", "name", "cantidad_stock", "stock_bajo"}
+                new String[]{"id", "name", "cantidad_stock", "stock_bajo", "image"}
         );
 
         Log.d("STOCK", "JSON enviado a Odoo: " + body.toString());
@@ -122,14 +167,14 @@ public class StockListActivity extends AppCompatActivity {
                                         String name = p.has("name") ? p.get("name").getAsString() : "Sin nombre";
                                         int stock = p.has("cantidad_stock") ? p.get("cantidad_stock").getAsInt() : 0;
                                         boolean bajo = p.has("stock_bajo") && p.get("stock_bajo").getAsBoolean();
-                                        nuevosProductos.add(new Product(id, name, stock, bajo));
+                                        String image = p.get("image").getAsString();
+                                        String categoria = p.has("categoria") ? p.get("categoria").getAsString() : "Otros";
+                                        nuevosProductos.add(new Product(id, name, stock, bajo, image, categoria));
                                     }
                                 }
 
                                 runOnUiThread(() -> {
-                                    productos.clear();
-                                    productos.addAll(nuevosProductos);
-                                    adapter.notifyDataSetChanged();
+                                    adapter.actualizarDatos(nuevosProductos);
                                     progressBar.setVisibility(View.GONE);
                                 });
 

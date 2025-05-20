@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.domatix.yevbes.nucleus.core.entities.session.authenticate.Authenticate;
 import com.domatix.yevbes.nucleus.core.entities.session.authenticate.AuthenticateParams;
 import com.domatix.yevbes.nucleus.core.entities.session.authenticate.AuthenticateReqBody;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -22,6 +24,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import com.example.aplicaciongestionstockimprenta.RolResponse;
+
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -37,9 +42,9 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        usuarioEt  = findViewById(R.id.emailLoginEditText);
-        passwordEt = findViewById(R.id.passwordLoginEditText);
-        loginBtn   = findViewById(R.id.loginButton);
+        usuarioEt  = findViewById(R.id.etEmail);
+        passwordEt = findViewById(R.id.etPassword);
+        loginBtn   = findViewById(R.id.btnLogin);
         progress   = findViewById(R.id.progressBar);
 
         // 🔍 Interceptor de logs
@@ -50,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
         OkHttpClient client = RetrofitClient.getHttpClientWithLogging(logging);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://50.85.209.163:8069/web/session/")  // Solo para login
+                .baseUrl("http://50.85.209.163:8069/")
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -92,13 +97,55 @@ public class LoginActivity extends AppCompatActivity {
 
                         Log.d("LOGIN", "✅ Login correcto. UID: " + uid);
 
-                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                        i.putExtra("uid", uid);
-                        i.putExtra("usuario", usuario);
-                        i.putExtra("password", password);
-                        i.putExtra("rol", "admin"); // temporal
-                        startActivity(i);
-                        finish();
+                        JsonObject emptyBody = new JsonObject();
+                        service.obtenerRol(emptyBody).enqueue(new Callback<RolResponse>() {
+                            @Override
+                            public void onResponse(Call<RolResponse> call, Response<RolResponse> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    RolResponse rolResp = response.body();
+
+                                    String rol = rolResp.result.rol;
+                                    Intent i;
+
+                                    if (rol == null) {
+                                        Toast.makeText(LoginActivity.this, "Error: rol es null", Toast.LENGTH_SHORT).show();
+                                        Log.e("LOGIN", "❌ Rol null en respuesta: " + new Gson().toJson(rolResp));
+                                        return;
+                                    }
+
+                                    Log.d("LOGIN", "✅ Rol recibido: " + rol);
+
+                                    switch (rol) {
+                                        case "admin":
+                                            i = new Intent(LoginActivity.this, AdminActivity.class);
+                                            break;
+                                        case "fabrica":
+                                            i = new Intent(LoginActivity.this, FabricaActivity.class);
+                                            break;
+                                        case "contabilidad":
+                                            i = new Intent(LoginActivity.this, ContabilidadActivity.class);
+                                            break;
+                                        default:
+                                            Toast.makeText(LoginActivity.this, "Rol desconocido: " + rol, Toast.LENGTH_SHORT).show();
+                                            return;
+                                    }
+
+                                    i.putExtra("uid", uid);
+                                    i.putExtra("usuario", usuario);
+                                    i.putExtra("password", password);
+                                    i.putExtra("rol", rolResp.result.rol);
+                                    startActivity(i);
+                                    finish();
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Error al obtener rol del usuario", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<RolResponse> call, Throwable t) {
+                                Toast.makeText(LoginActivity.this, "Fallo al obtener rol: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
                     } else {
                         Log.e("LOGIN", "❌ Login fallido. HTTP: " + resp.code());

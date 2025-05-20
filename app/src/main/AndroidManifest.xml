@@ -23,18 +23,13 @@
 
         <!-- Punto de entrada de la app: login / splash -->
         <activity
-            android:name=".InicioActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <!-- Pantalla de login (si fuera una Activity aparte) -->
-        <activity
-            android:name=".LoginActivity"
-            android:exported="true" />
 
         <!-- “Loading” que redirige según rol -->
         <activity
