@@ -1,9 +1,8 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.adapters;
 
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -18,6 +17,10 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.aplicaciongestionstockimprenta.network.OdooService;
+import com.example.aplicaciongestionstockimprenta.R;
+import com.example.aplicaciongestionstockimprenta.network.RetrofitClient;
+import com.example.aplicaciongestionstockimprenta.models.Solicitud;
 import com.google.gson.JsonObject;
 
 import java.util.List;

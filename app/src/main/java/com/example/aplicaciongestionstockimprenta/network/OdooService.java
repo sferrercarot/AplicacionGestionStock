@@ -1,4 +1,4 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.network;
 
 import com.domatix.yevbes.nucleus.core.entities.session.authenticate.AuthenticateReqBody;
 import com.domatix.yevbes.nucleus.core.entities.session.authenticate.Authenticate;
@@ -6,11 +6,10 @@ import com.domatix.yevbes.nucleus.core.entities.session.authenticate.Authenticat
 import com.google.gson.JsonObject;
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
-import com.example.aplicaciongestionstockimprenta.RolResponse;
+import com.example.aplicaciongestionstockimprenta.models.RolResponse;
 
 
 public interface OdooService {
@@ -20,19 +19,11 @@ public interface OdooService {
 
     @Headers("Content-Type: application/json")
     @POST("jsonrpc")
-    Call<JsonObject> obtenerInformacionUsuario(@Body JsonObject body);
-
-    @Headers("Content-Type: application/json")
-    @POST("jsonrpc")
     Call<JsonObject> searchRead(@Body JsonObject body);
 
     @Headers("Content-Type: application/json")
     @POST("api/rol_usuario")
     Call<RolResponse> obtenerRol(@Body JsonObject emptyBody);
-
-    @Headers("Content-Type: application/json")
-    @POST("/web/session/get_session_info")
-    Call<JsonObject> getSessionInfo(@Body JsonObject body);
 
     @POST("/jsonrpc")
     Call<JsonObject> genericWrite(@Body JsonObject body);

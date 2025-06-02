@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         android:padding="12dp">
 
-        <!-- Usuario (arriba izquierda) -->
         <TextView
             android:id="@+id/textUsuario"
             android:layout_width="wrap_content"
@@ -25,7 +24,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Fecha (arriba centro derecha) -->
         <TextView
             android:id="@+id/textFecha"
             android:layout_width="wrap_content"
@@ -38,7 +36,6 @@
             app:layout_constraintEnd_toStartOf="@+id/btnOpciones"
             app:layout_constraintHorizontal_bias="1.0" />
 
-        <!-- Botón de opciones (3 puntos) -->
         <ImageButton
             android:id="@+id/btnOpciones"
             android:layout_width="wrap_content"
@@ -50,7 +47,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Producto (nombre del producto en negrita y verde) -->
         <TextView
             android:id="@+id/textProducto"
             android:layout_width="0dp"
@@ -65,7 +61,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Mensaje (descripción en rojo) -->
         <TextView
             android:id="@+id/textMensaje"
             android:layout_width="0dp"
@@ -82,7 +77,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/spinnerEstado" />
 
-        <!-- Estado (spinner a la derecha del mensaje) -->
         <Spinner
             android:id="@+id/spinnerEstado"
             android:layout_width="wrap_content"

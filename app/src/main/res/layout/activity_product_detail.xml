@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
-    <!-- Imagen grande del producto -->
     <ImageView
         android:id="@+id/imgProductoDetalle"
         android:layout_width="200dp"

@@ -15,12 +15,6 @@
         android:textSize="18sp" />
 
     <CheckBox
-        android:id="@+id/filtroTodos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Todos" />
-
-    <CheckBox
         android:id="@+id/filtroAlmacenPapel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

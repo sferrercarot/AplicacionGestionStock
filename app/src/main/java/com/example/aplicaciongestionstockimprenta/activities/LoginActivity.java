@@ -1,4 +1,4 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.domatix.yevbes.nucleus.core.entities.session.authenticate.Authenticate;
 import com.domatix.yevbes.nucleus.core.entities.session.authenticate.AuthenticateParams;
 import com.domatix.yevbes.nucleus.core.entities.session.authenticate.AuthenticateReqBody;
+import com.example.aplicaciongestionstockimprenta.network.OdooService;
+import com.example.aplicaciongestionstockimprenta.R;
+import com.example.aplicaciongestionstockimprenta.network.RetrofitClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -25,7 +28,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import com.example.aplicaciongestionstockimprenta.RolResponse;
+import com.example.aplicaciongestionstockimprenta.models.RolResponse;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -47,20 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn   = findViewById(R.id.btnLogin);
         progress   = findViewById(R.id.progressBar);
 
-        // 🔍 Interceptor de logs
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(msg -> Log.d("HTTP", msg));
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        // ✅ Cliente con logging y cookies compartidas
-        OkHttpClient client = RetrofitClient.getHttpClientWithLogging(logging);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://50.85.209.163:8069/")
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        service = retrofit.create(OdooService.class);
+        service = RetrofitClient.getOdooService();
 
         loginBtn.setOnClickListener(view -> {
             String usuario = usuarioEt.getText().toString().trim();
@@ -74,12 +64,10 @@ public class LoginActivity extends AppCompatActivity {
             progress.setVisibility(View.VISIBLE);
             loginBtn.setEnabled(false);
 
-            // 📦 Cuerpo de la solicitud JSON-RPC
             AuthenticateParams params = new AuthenticateParams(DB_NAME, usuario, password);
             AuthenticateReqBody request = new AuthenticateReqBody();
             request.setParams(params);
 
-            Log.d("LOGIN", "🔐 Enviando login por JSON-RPC: " + usuario);
             service.login(request).enqueue(new Callback<Authenticate>() {
                 @Override
                 public void onResponse(Call<Authenticate> call, Response<Authenticate> resp) {
@@ -90,12 +78,12 @@ public class LoginActivity extends AppCompatActivity {
                         int uid = resp.body().getResult().getUid();
 
                         if (uid <= 0) {
-                            Log.e("LOGIN", "❌ Login fallido. UID inválido: " + uid);
+                            Log.e("LOGIN", "UID inválido: " + uid);
                             Toast.makeText(LoginActivity.this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        Log.d("LOGIN", "✅ Login correcto. UID: " + uid);
+                        Log.d("LOGIN", "Login correcto. UID: " + uid);
 
                         JsonObject emptyBody = new JsonObject();
                         service.obtenerRol(emptyBody).enqueue(new Callback<RolResponse>() {
@@ -109,11 +97,11 @@ public class LoginActivity extends AppCompatActivity {
 
                                     if (rol == null) {
                                         Toast.makeText(LoginActivity.this, "Error: rol es null", Toast.LENGTH_SHORT).show();
-                                        Log.e("LOGIN", "❌ Rol null en respuesta: " + new Gson().toJson(rolResp));
+                                        Log.e("LOGIN", "Rol null en respuesta: " + new Gson().toJson(rolResp));
                                         return;
                                     }
 
-                                    Log.d("LOGIN", "✅ Rol recibido: " + rol);
+                                    Log.d("LOGIN", "Rol recibido: " + rol);
 
                                     switch (rol) {
                                         case "admin":
@@ -135,6 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                                     i.putExtra("password", password);
                                     i.putExtra("rol", rolResp.result.rol);
                                     startActivity(i);
+                                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                                     finish();
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Error al obtener rol del usuario", Toast.LENGTH_SHORT).show();
@@ -148,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
                         });
 
                     } else {
-                        Log.e("LOGIN", "❌ Login fallido. HTTP: " + resp.code());
+                        Log.e("LOGIN", "Login fallido. HTTP: " + resp.code());
                         Toast.makeText(LoginActivity.this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -157,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
                 public void onFailure(Call<Authenticate> call, Throwable t) {
                     progress.setVisibility(View.GONE);
                     loginBtn.setEnabled(true);
-                    Log.e("LOGIN", "❌ Error de red al hacer login", t);
+                    Log.e("LOGIN", "Error de red al hacer login", t);
                     Toast.makeText(LoginActivity.this, "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

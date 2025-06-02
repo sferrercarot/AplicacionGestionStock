@@ -1,4 +1,4 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.models;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -43,22 +43,6 @@ public class Product {
         this.name = name;
     }
 
-    public int getCantidad_stock() {
-        return cantidad_stock;
-    }
-
-    public void setCantidad_stock(int cantidad_stock) {
-        this.cantidad_stock = cantidad_stock;
-    }
-
-    public boolean isStock_bajo() {
-        return stock_bajo;
-    }
-
-    public void setStock_bajo(boolean stock_bajo) {
-        this.stock_bajo = stock_bajo;
-    }
-
     @Override
     public String toString() {
         return name;
@@ -66,10 +50,6 @@ public class Product {
 
     public String getImage() {
         return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getCategoria() {

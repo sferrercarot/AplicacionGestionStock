@@ -1,9 +1,11 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.aplicaciongestionstockimprenta.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,13 +16,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1) Recoges los extras del Intent (rol, user, etc)
-        rol      = getIntent().getStringExtra("rol");
-        user     = getIntent().getStringExtra("usuario");
+        rol = getIntent().getStringExtra("rol");
+        user = getIntent().getStringExtra("usuario");
         password = getIntent().getStringExtra("password");
-        uid      = getIntent().getIntExtra("uid", -1);
+        uid = getIntent().getIntExtra("uid", -1);
 
-        // 2) Si ya tienes rol, arranca la Activity adecuada y termina ésta
         if (rol != null) {
             Intent intent;
             switch (rol) {
@@ -37,23 +37,19 @@ public class MainActivity extends AppCompatActivity {
                     intent = new Intent(this, StockListActivity.class);
                     break;
                 default:
-                    // rol desconocido → de vuelta al Login
                     intent = new Intent(this, LoginActivity.class);
                     break;
             }
-            // pásales todos los extras que necesiten
             intent.putExtra("rol",       rol);
             intent.putExtra("usuario",   user);
             intent.putExtra("password",  password);
             intent.putExtra("uid",       uid);
 
             startActivity(intent);
-            finish();   // destruyo la MainActivity para que no vuelva al “cargando”
-            return;     // ¡muy importante!
+            finish();
+            return;
         }
 
-        // 3) Si no hay rol (por algún motivo), mostramos pantalla de carga
         setContentView(R.layout.activity_main);
-        // aquí podrías implementar un “loading” mientras esperas al callback de nucleus/Odoo
     }
 }

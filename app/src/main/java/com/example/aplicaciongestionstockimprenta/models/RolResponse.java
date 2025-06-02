@@ -1,4 +1,4 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.models;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -10,9 +10,6 @@ public class RolResponse {
     public static class Result {
         @SerializedName("rol")
         public String rol;
-
-        @SerializedName("usuario")
-        public String usuario;
 
         @SerializedName("id")
         public int id;

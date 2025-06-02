@@ -1,4 +1,4 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.aplicaciongestionstockimprenta.R;
 
 public class FabricaActivity extends AppCompatActivity {
 
@@ -26,11 +28,10 @@ public class FabricaActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin); // Reutiliza el mismo layout
+        setContentView(R.layout.activity_admin);
 
-        Log.d(TAG, "onCreate: FabricaActivity arrancado");
+        Log.d(TAG, "FabricaActivity arrancado");
 
-        // Recuperar extras
         uid = getIntent().getIntExtra("uid", -1);
         usuario = getIntent().getStringExtra("usuario");
         password = getIntent().getStringExtra("password");
@@ -43,18 +44,15 @@ public class FabricaActivity extends AppCompatActivity {
             return;
         }
 
-        // Enlazar botones
         btnVerStock = findViewById(R.id.btnVerStock);
         btnSolicitarMaterial = findViewById(R.id.btnSolicitarMaterial);
         btnVerSolicitudes = findViewById(R.id.btnVerSolicitudes);
 
-        // 🔒 Ocultar el botón de ver solicitudes
         btnVerSolicitudes.setEnabled(false);
         btnVerSolicitudes.setVisibility(View.GONE);
 
-        // Ver Stock
         btnVerStock.setOnClickListener(v -> {
-            Log.d(TAG, "btnVerStock.onClick: lanzando StockListActivity");
+            Log.d(TAG, "Lanzando StockListActivity");
 
             Intent i = new Intent(FabricaActivity.this, StockListActivity.class);
             i.putExtra("uid", uid);
@@ -65,9 +63,8 @@ public class FabricaActivity extends AppCompatActivity {
             startActivity(i);
         });
 
-        // Solicitar material
         btnSolicitarMaterial.setOnClickListener(v -> {
-            Log.d(TAG, "btnSolicitarMaterial.onClick: lanzando SolicitudMaterialActivity");
+            Log.d(TAG, "Lanzando SolicitudMaterialActivity");
 
             Intent i = new Intent(FabricaActivity.this, SolicitudMaterialActivity.class);
             i.putExtra("uid", uid);

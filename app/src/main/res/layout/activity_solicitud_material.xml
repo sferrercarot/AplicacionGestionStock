@@ -19,13 +19,13 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#333333"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="37dp" />
 
         <Spinner
             android:id="@+id/spinnerProductos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="24dp" />
 
         <EditText
             android:id="@+id/etMensajeSolicitud"
@@ -37,7 +37,7 @@
             android:inputType="textMultiLine"
             android:minLines="5"
             android:maxLines="8"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="24dp" />
 
         <Button
             android:id="@+id/btnEnviarSolicitud"
@@ -47,7 +47,7 @@
             android:backgroundTint="@color/primary"
             android:textColor="@android:color/white"
             android:paddingHorizontal="32dp"
-            android:paddingVertical="12dp"/>
+            android:paddingVertical="12dp" />
 
     </LinearLayout>
 </ScrollView>

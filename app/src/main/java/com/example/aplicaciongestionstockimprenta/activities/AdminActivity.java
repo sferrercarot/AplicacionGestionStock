@@ -1,17 +1,16 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class ContabilidadActivity extends AppCompatActivity {
+import com.example.aplicaciongestionstockimprenta.R;
 
-    private static final String TAG = "ContabilidadActivity";
+public class AdminActivity extends AppCompatActivity {
 
     private Button btnVerStock;
     private Button btnSolicitarMaterial;
@@ -26,11 +25,8 @@ public class ContabilidadActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin);  // Usa el mismo layout que AdminActivity
+        setContentView(R.layout.activity_admin);
 
-        Log.d(TAG, "onCreate: ContabilidadActivity arrancado");
-
-        // Recuperar extras
         uid = getIntent().getIntExtra("uid", -1);
         usuario = getIntent().getStringExtra("usuario");
         password = getIntent().getStringExtra("password");
@@ -43,19 +39,12 @@ public class ContabilidadActivity extends AppCompatActivity {
             return;
         }
 
-        // Enlazar botones
         btnVerStock = findViewById(R.id.btnVerStock);
         btnSolicitarMaterial = findViewById(R.id.btnSolicitarMaterial);
         btnVerSolicitudes = findViewById(R.id.btnVerSolicitudes);
 
-        // Ocultar botón de solicitar material (no permitido para contabilidad)
-        btnSolicitarMaterial.setVisibility(View.GONE);
-
-        // Ver Stock
         btnVerStock.setOnClickListener(v -> {
-            Log.d(TAG, "btnVerStock.onClick: lanzando StockListActivity");
-
-            Intent i = new Intent(ContabilidadActivity.this, StockListActivity.class);
+            Intent i = new Intent(AdminActivity.this, StockListActivity.class);
             i.putExtra("uid", uid);
             i.putExtra("usuario", usuario);
             i.putExtra("password", password);
@@ -64,11 +53,16 @@ public class ContabilidadActivity extends AppCompatActivity {
             startActivity(i);
         });
 
-        // Ver solicitudes
+        btnSolicitarMaterial.setOnClickListener(v -> {
+            Intent i = new Intent(AdminActivity.this, SolicitudMaterialActivity.class);
+            i.putExtra("uid", uid);
+            i.putExtra("password", password);
+            startActivity(i);
+        });
+
+
         btnVerSolicitudes.setOnClickListener(v -> {
-            Log.d(TAG, "btnVerSolicitudes.onClick: lanzando BuzonSolicitudesActivity");
-
-            Intent i = new Intent(ContabilidadActivity.this, BuzonSolicitudesActivity.class);
+            Intent i = new Intent(AdminActivity.this, BuzonSolicitudesActivity.class);
             i.putExtra("uid", uid);
             i.putExtra("usuario", usuario);
             i.putExtra("password", password);
@@ -76,5 +70,6 @@ public class ContabilidadActivity extends AppCompatActivity {
             i.putExtra("sessionId", sessionId);
             startActivity(i);
         });
+
     }
 }

@@ -1,13 +1,17 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.activities;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.aplicaciongestionstockimprenta.network.OdooService;
+import com.example.aplicaciongestionstockimprenta.R;
+import com.example.aplicaciongestionstockimprenta.network.RetrofitClient;
+import com.example.aplicaciongestionstockimprenta.models.Solicitud;
+import com.example.aplicaciongestionstockimprenta.adapters.SolicitudesAdapter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -35,6 +39,7 @@ public class BuzonSolicitudesActivity extends AppCompatActivity {
 
         uid = getIntent().getIntExtra("uid", -1);
         password = getIntent().getStringExtra("password");
+
         service = RetrofitClient.getOdooService();
 
         recyclerView = findViewById(R.id.recyclerSolicitudes);
@@ -56,7 +61,6 @@ public class BuzonSolicitudesActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     JsonObject outerResult = response.body().getAsJsonObject("result");
 
-                    // ✅ Verificamos que el objeto tenga la clave "result" interna
                     if (outerResult != null && outerResult.has("result") && outerResult.get("result").isJsonArray()) {
                         JsonArray results = outerResult.getAsJsonArray("result");
 
@@ -77,16 +81,16 @@ public class BuzonSolicitudesActivity extends AppCompatActivity {
                         }
                         adapter.notifyDataSetChanged();
                     } else {
-                        Toast.makeText(BuzonSolicitudesActivity.this, "📭 No hay solicitudes disponibles", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BuzonSolicitudesActivity.this, "No hay solicitudes disponibles", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(BuzonSolicitudesActivity.this, "❌ Error al cargar solicitudes", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BuzonSolicitudesActivity.this, "Error al cargar solicitudes", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Toast.makeText(BuzonSolicitudesActivity.this, "❌ Error de red", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BuzonSolicitudesActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
             }
         });
     }

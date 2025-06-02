@@ -1,4 +1,4 @@
-package com.example.aplicaciongestionstockimprenta;
+package com.example.aplicaciongestionstockimprenta.activities;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +11,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.aplicaciongestionstockimprenta.network.OdooService;
+import com.example.aplicaciongestionstockimprenta.models.Product;
+import com.example.aplicaciongestionstockimprenta.R;
+import com.example.aplicaciongestionstockimprenta.network.RetrofitClient;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -62,7 +66,7 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d("PRODUCTOS", "✅ Productos obtenidos correctamente");
+                    Log.d("PRODUCTOS", "Productos obtenidos correctamente");
 
                     JsonObject outerResult = response.body().getAsJsonObject("result");
                     JsonArray results = outerResult.getAsJsonArray("result");
@@ -97,18 +101,18 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
                 } else {
                     try {
                         String errorMsg = response.errorBody() != null ? response.errorBody().string() : "sin errorBody";
-                        Log.e("PRODUCTOS", "❌ Error al cargar productos - código: " + response.code() + " - error: " + errorMsg);
+                        Log.e("PRODUCTOS", "Error al cargar productos - código: " + response.code() + " - error: " + errorMsg);
                     } catch (Exception e) {
-                        Log.e("PRODUCTOS", "❌ Error parsing errorBody", e);
+                        Log.e("PRODUCTOS", "Error parsing errorBody", e);
                     }
-                    Toast.makeText(SolicitudMaterialActivity.this, "❌ Error al cargar productos", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SolicitudMaterialActivity.this, "Error al cargar productos", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.e("PRODUCTOS", "❌ Error de red al cargar productos", t);
-                Toast.makeText(SolicitudMaterialActivity.this, "❌ Error de red", Toast.LENGTH_SHORT).show();
+                Log.e("PRODUCTOS", "Error de red al cargar productos", t);
+                Toast.makeText(SolicitudMaterialActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -136,16 +140,16 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(SolicitudMaterialActivity.this, "✅ Solicitud enviada", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SolicitudMaterialActivity.this, "Solicitud enviada", Toast.LENGTH_LONG).show();
                     finish();
                 } else {
-                    Toast.makeText(SolicitudMaterialActivity.this, "❌ Error al enviar solicitud", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SolicitudMaterialActivity.this, "Error al enviar solicitud", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Toast.makeText(SolicitudMaterialActivity.this, "❌ Error de red", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SolicitudMaterialActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
             }
         });
     }

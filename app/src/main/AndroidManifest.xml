@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,7 +22,7 @@
 
         <!-- Punto de entrada de la app: login / splash -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -33,32 +32,32 @@
 
         <!-- “Loading” que redirige según rol -->
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="true" />
 
         <!-- Pantallas definitivas por rol -->
         <activity
-            android:name=".AdminActivity"
+            android:name=".activities.AdminActivity"
             android:exported="true" />
         <activity
-            android:name=".FabricaActivity"
+            android:name=".activities.FabricaActivity"
             android:exported="true" />
         <activity
-            android:name=".ContabilidadActivity"
+            android:name=".activities.ContabilidadActivity"
             android:exported="true" />
         <activity
-            android:name=".StockListActivity"
+            android:name=".activities.StockListActivity"
             android:exported="true" />
         <activity
-            android:name=".ProductDetailActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".BuzonSolicitudesActivity"
+            android:name=".activities.ProductDetailActivity"
             android:exported="true" />
 
         <activity
-            android:name=".SolicitudMaterialActivity"
+            android:name=".activities.BuzonSolicitudesActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".activities.SolicitudMaterialActivity"
             android:exported="true" />
 
     </application>

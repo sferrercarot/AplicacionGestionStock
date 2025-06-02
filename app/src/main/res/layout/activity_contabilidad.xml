@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ContabilidadActivity"
+    tools:context=".activities.ContabilidadActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
@@ -20,11 +20,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Logo más grande y con margen superior -->
         <ImageView
             android:id="@+id/headerIcon"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
             android:src="@drawable/logo_empresa"
             android:contentDescription="@string/app_name"
             android:layout_marginBottom="24dp"
@@ -32,7 +31,6 @@
             android:scaleType="fitCenter"
             tools:ignore="ContentDescription" />
 
-        <!-- Botones con mismo estilo y espaciado -->
         <Button
             android:id="@+id/btnVerStock"
             style="@style/PrimaryButton"
