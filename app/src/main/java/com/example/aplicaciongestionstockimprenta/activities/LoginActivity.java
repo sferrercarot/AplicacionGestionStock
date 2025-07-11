@@ -45,38 +45,48 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Referencias a los elementos visuales
         usuarioEt  = findViewById(R.id.etEmail);
         passwordEt = findViewById(R.id.etPassword);
         loginBtn   = findViewById(R.id.btnLogin);
         progress   = findViewById(R.id.progressBar);
 
+        // Inicializa Retrofit para conectarse a Odoo
         service = RetrofitClient.getOdooService();
 
+        // Acción al hacer clic en el botón de login
         loginBtn.setOnClickListener(view -> {
             String usuario = usuarioEt.getText().toString().trim();
             String password = passwordEt.getText().toString().trim();
 
+            // Valida que los campos no estén vacíos
             if (usuario.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Rellena todos los campos", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Muestra la barra de carga y desactiva el botón temporalmente
             progress.setVisibility(View.VISIBLE);
             loginBtn.setEnabled(false);
 
+            // Construye el cuerpo de la petición de login
             AuthenticateParams params = new AuthenticateParams(DB_NAME, usuario, password);
             AuthenticateReqBody request = new AuthenticateReqBody();
             request.setParams(params);
 
+            // Llama al método login del servicio
             service.login(request).enqueue(new Callback<Authenticate>() {
                 @Override
                 public void onResponse(Call<Authenticate> call, Response<Authenticate> resp) {
+                    // Oculta la barra de carga y reactiva el botón
                     progress.setVisibility(View.GONE);
                     loginBtn.setEnabled(true);
 
+                    // Verifica si la respuesta es válida y contiene el UID
                     if (resp.isSuccessful() && resp.body() != null && resp.body().getResult() != null) {
                         int uid = resp.body().getResult().getUid();
 
+                        // Si el UID no es válido, muestra error
                         if (uid <= 0) {
                             Log.e("LOGIN", "UID inválido: " + uid);
                             Toast.makeText(LoginActivity.this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show();
@@ -85,16 +95,17 @@ public class LoginActivity extends AppCompatActivity {
 
                         Log.d("LOGIN", "Login correcto. UID: " + uid);
 
+                        // Llama al backend para obtener el rol del usuario autenticado
                         JsonObject emptyBody = new JsonObject();
                         service.obtenerRol(emptyBody).enqueue(new Callback<RolResponse>() {
                             @Override
                             public void onResponse(Call<RolResponse> call, Response<RolResponse> response) {
                                 if (response.isSuccessful() && response.body() != null) {
                                     RolResponse rolResp = response.body();
-
                                     String rol = rolResp.result.rol;
                                     Intent i;
 
+                                    // Valida que el rol no sea null
                                     if (rol == null) {
                                         Toast.makeText(LoginActivity.this, "Error: rol es null", Toast.LENGTH_SHORT).show();
                                         Log.e("LOGIN", "Rol null en respuesta: " + new Gson().toJson(rolResp));
@@ -103,6 +114,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     Log.d("LOGIN", "Rol recibido: " + rol);
 
+                                    // Redirige según el rol recibido
                                     switch (rol) {
                                         case "admin":
                                             i = new Intent(LoginActivity.this, AdminActivity.class);
@@ -118,10 +130,13 @@ public class LoginActivity extends AppCompatActivity {
                                             return;
                                     }
 
+                                    // Pasa los datos necesarios a la siguiente actividad
                                     i.putExtra("uid", uid);
                                     i.putExtra("usuario", usuario);
                                     i.putExtra("password", password);
                                     i.putExtra("rol", rolResp.result.rol);
+
+                                    // Lanza la nueva actividad y cierra la actual
                                     startActivity(i);
                                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                                     finish();

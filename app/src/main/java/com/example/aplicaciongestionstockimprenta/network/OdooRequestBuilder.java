@@ -8,6 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OdooRequestBuilder {
+
+
+     /* Clase de utilidad para construir peticiones JSON-RPC para Odoo desde Android.
+     Esta clase permite crear cuerpos JSON compatibles con el método 'execute_kw'
+     del endpoint /jsonrpc de Odoo. */
+
     public static JsonObject buildSearchReadRequest(String db, int uid, String password, String model, String[] fields) {
         JsonObject request = new JsonObject();
         request.addProperty("jsonrpc", "2.0");

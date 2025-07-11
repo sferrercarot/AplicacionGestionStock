@@ -72,6 +72,7 @@
                 android:elevation="2dp"
                 android:fontFamily="sans-serif"
                 android:layout_marginEnd="4dp"
+                android:visibility="gone"
                 style="@style/Widget.MaterialComponents.Button.TextButton" />
 
             <Button
@@ -84,6 +85,7 @@
                 android:textColor="#000000"
                 android:elevation="2dp"
                 android:fontFamily="sans-serif"
+                android:visibility="gone"
                 style="@style/Widget.MaterialComponents.Button.TextButton" />
         </LinearLayout>
     </LinearLayout>

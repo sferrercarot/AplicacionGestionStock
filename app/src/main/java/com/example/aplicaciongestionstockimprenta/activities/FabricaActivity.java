@@ -28,29 +28,36 @@ public class FabricaActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Se reutiliza el mismo layout que Admin y Contabilidad
         setContentView(R.layout.activity_admin);
 
+        // Mensaje en el log para confirmar que la actividad se ha lanzado
         Log.d(TAG, "FabricaActivity arrancado");
 
+        // Recupera los datos de sesión del intent
         uid = getIntent().getIntExtra("uid", -1);
         usuario = getIntent().getStringExtra("usuario");
         password = getIntent().getStringExtra("password");
         rol = getIntent().getStringExtra("rol");
         sessionId = getIntent().getStringExtra("sessionId");
 
+        // Verifica que los datos de sesión son válidos y que el rol es 'fabrica'
         if (uid == -1 || usuario == null || password == null || !"fabrica".equals(rol)) {
             Toast.makeText(this, "Acceso denegado", Toast.LENGTH_LONG).show();
-            finish();
+            finish(); // Cierra la actividad si hay un error
             return;
         }
 
+        // Vincula los botones del layout con las variables
         btnVerStock = findViewById(R.id.btnVerStock);
         btnSolicitarMaterial = findViewById(R.id.btnSolicitarMaterial);
         btnVerSolicitudes = findViewById(R.id.btnVerSolicitudes);
 
+        // Desactiva y oculta el botón de ver solicitudes (solo accesible para contabilidad)
         btnVerSolicitudes.setEnabled(false);
         btnVerSolicitudes.setVisibility(View.GONE);
 
+        // Acción del botón "Ver Stock": abre la pantalla con la lista de productos
         btnVerStock.setOnClickListener(v -> {
             Log.d(TAG, "Lanzando StockListActivity");
 
@@ -63,6 +70,7 @@ public class FabricaActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+        // Acción del botón "Solicitar Material": abre el formulario para enviar solicitudes
         btnSolicitarMaterial.setOnClickListener(v -> {
             Log.d(TAG, "Lanzando SolicitudMaterialActivity");
 

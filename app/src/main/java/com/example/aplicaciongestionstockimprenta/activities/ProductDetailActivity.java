@@ -30,27 +30,34 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProductDetailActivity extends AppCompatActivity {
 
-    private TextView tvProductName, tvCurrentStock;
+    private ImageView imgProductoDetalle;
+    private TextView txtTituloProducto, tvCurrentStock, tvCategoria;
     private EditText etNewStock;
     private Button btnUpdateStock;
-    private ImageView imgProduct;
 
     private int productId, currentStock, uid;
     private String productName, password, imageUrl;
+    private String tipo, medida, categoria;
+    private int gramaje;
+    private boolean cantidadMinima;
 
     private OdooService service;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
 
-        tvProductName = findViewById(R.id.tvProductName);
+        // Inicializar vistas
+        imgProductoDetalle = findViewById(R.id.imgProductoDetalle);
+        txtTituloProducto = findViewById(R.id.txtTituloProducto);
         tvCurrentStock = findViewById(R.id.tvCurrentStock);
+        tvCategoria = findViewById(R.id.tvCategoria);
         etNewStock = findViewById(R.id.etNewStock);
         btnUpdateStock = findViewById(R.id.btnUpdateStock);
-        imgProduct = findViewById(R.id.imgProductoDetalle);
 
+        // Obtener datos del Intent
         productId = getIntent().getIntExtra("id", -1);
         productName = getIntent().getStringExtra("name");
         currentStock = getIntent().getIntExtra("cantidad_stock", 0);
@@ -58,39 +65,70 @@ public class ProductDetailActivity extends AppCompatActivity {
         password = getIntent().getStringExtra("password");
         imageUrl = getIntent().getStringExtra("image");
 
+        // Datos que no vas a mostrar directamente pero puedes guardar para lógica
+        tipo = getIntent().getStringExtra("tipo");
+        gramaje = getIntent().getIntExtra("gramaje", 0);
+        medida = getIntent().getStringExtra("medida");
+        categoria = getIntent().getStringExtra("categoria");
+        cantidadMinima = getIntent().getBooleanExtra("cantidad_minima", false);
+
+        // Poner datos en vistas visibles
+        String tituloCompleto = productName;
+        if (tipo != null && !tipo.isEmpty()) {
+            tituloCompleto += " " + tipo;
+        }
+        if (gramaje > 0) {
+            tituloCompleto += " - " + gramaje;
+        }
+        if (medida != null && !medida.isEmpty()) {
+            tituloCompleto += " - " + medida;
+        }
+        txtTituloProducto.setText(tituloCompleto);
+
+        tvCurrentStock.setText("Stock actual: " + currentStock);
+        tvCategoria.setText(categoria != null ? categoria : "");  // Por si viene null
+
+
+
+
+        // Verifica que todos los datos necesarios estén presentes
         if (productId == -1 || productName == null || uid == -1 || password == null) {
             Toast.makeText(this, "Datos incompletos", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        tvProductName.setText(productName);
-        tvCurrentStock.setText("Stock actual: " + currentStock);
-
+        // Si hay una imagen en base64, se decodifica y se muestra
         if (imageUrl != null && !imageUrl.isEmpty()) {
             try {
+                // Elimina el encabezado si existe ("data:image/png;base64,...")
                 String base64Data = imageUrl.contains(",") ? imageUrl.split(",")[1] : imageUrl;
                 byte[] imageBytes = Base64.decode(base64Data, Base64.DEFAULT);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                imgProduct.setImageBitmap(bitmap);
+                imgProductoDetalle.setImageBitmap(bitmap);
             } catch (Exception e) {
+                // Si falla, se muestra una imagen por defecto
                 e.printStackTrace();
-                imgProduct.setImageResource(R.drawable.stock_box);
+                imgProductoDetalle.setImageResource(R.drawable.stock_box);
             }
         } else {
-            imgProduct.setImageResource(R.drawable.stock_box);
+            imgProductoDetalle.setImageResource(R.drawable.stock_box);
         }
 
+        // Inicializa Retrofit
         service = RetrofitClient.getOdooService();
 
-
+        // Acción al pulsar el botón "Actualizar stock"
         btnUpdateStock.setOnClickListener(v -> {
             String newStockStr = etNewStock.getText().toString().trim();
+
+            // Validación: campo vacío
             if (newStockStr.isEmpty()) {
                 Toast.makeText(this, "Introduce un valor de stock", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Validación: conversión a número
             int newStock;
             try {
                 newStock = Integer.parseInt(newStockStr);
@@ -99,10 +137,12 @@ public class ProductDetailActivity extends AppCompatActivity {
                 return;
             }
 
+            // Llama al método que actualiza el stock en Odoo
             actualizarStockEnOdoo(newStock);
         });
     }
 
+    // Método que envía la actualización del stock al backend (Odoo)
     private void actualizarStockEnOdoo(int nuevoStock) {
         JsonObject body = OdooRequestBuilder.buildWriteRequest(
                 "gestion_almacen", uid, password,
@@ -114,13 +154,14 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         Log.d("PRODUCT_DETAIL", "Actualizando stock: " + body.toString());
 
+        // Encola la petición con Retrofit
         service.genericWrite(body).enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d("PRODUCT_DETAIL", "Stock actualizado correctamente");
                     Toast.makeText(ProductDetailActivity.this, "Stock actualizado", Toast.LENGTH_SHORT).show();
-                    finish();
+                    finish(); // Cierra la actividad al finalizar
                 } else {
                     Log.e("PRODUCT_DETAIL", "Fallo al actualizar stock: " + response.code());
                     Toast.makeText(ProductDetailActivity.this, "Error al actualizar", Toast.LENGTH_SHORT).show();

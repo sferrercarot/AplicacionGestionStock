@@ -29,14 +29,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// Adaptador para mostrar las solicitudes de material en un RecyclerView
 public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.SolicitudViewHolder> {
 
     private final Context context;
-    private final List<Solicitud> lista;
+    private final List<Solicitud> lista; // Lista de solicitudes
     private final int uid;
     private final String password;
-    private final OdooService service;
+    private final OdooService service; // Servicio Retrofit para llamadas a Odoo
 
+    // Constructor que recibe contexto, lista y credenciales
     public SolicitudesAdapter(Context context, List<Solicitud> lista, int uid, String password) {
         this.context = context;
         this.lista = lista;
@@ -45,6 +47,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
         this.service = RetrofitClient.getOdooService();
     }
 
+    // Infla el layout de cada item de solicitud
     @NonNull
     @Override
     public SolicitudViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -52,22 +55,28 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
         return new SolicitudViewHolder(v);
     }
 
+    // Lógica para rellenar cada item del RecyclerView
     @Override
     public void onBindViewHolder(@NonNull SolicitudViewHolder holder, int position) {
         Solicitud solicitud = lista.get(position);
+
+        // Muestra la información en los campos
         holder.tvFecha.setText(solicitud.getFecha());
         holder.tvUsuario.setText(solicitud.getUsuario());
         holder.tvMensaje.setText(solicitud.getMensaje());
         holder.tvProducto.setText(solicitud.getProducto());
 
+        // Configura el Spinner con los posibles estados
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
                 R.array.estados_solicitud, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         holder.spinnerEstado.setAdapter(adapter);
 
+        // Establece el estado actual en el spinner
         int spinnerPosition = adapter.getPosition(solicitud.getEstado());
         holder.spinnerEstado.setSelection(spinnerPosition);
 
+        // Cambia el color de fondo y textos según el estado
         String estado = solicitud.getEstado();
         if ("Pendiente".equalsIgnoreCase(estado)) {
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.estado_pendiente));
@@ -86,6 +95,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
             holder.cardView.setCardElevation(2);
         }
 
+        // Lógica para cambiar el estado desde el Spinner
         holder.spinnerEstado.post(() -> {
             holder.spinnerEstado.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                 boolean primeraVez = true;
@@ -97,10 +107,11 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
 
                     Log.d("SPINNER", "Seleccionado: " + nuevoEstado + " | Actual: " + estadoActual);
 
+                    // Solo se actualiza si realmente ha cambiado
                     if (!nuevoEstado.equals(estadoActual)) {
                         Log.d("SPINNER", "Cambio real detectado. Llamando a actualizarEstado...");
                         solicitud.setEstado(capitalize(nuevoEstado));
-                        actualizarEstado(solicitud, nuevoEstado);
+                        actualizarEstado(solicitud, nuevoEstado); // Llama al backend
                     }
                 }
 
@@ -109,6 +120,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
             });
         });
 
+        // Muestra menú emergente al pulsar el icono de opciones (borrar solicitud)
         holder.opciones.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(context, holder.opciones);
             popup.inflate(R.menu.menu_opciones_solicitud);
@@ -123,6 +135,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
         });
     }
 
+    // Método que envía al backend el cambio de estado
     private void actualizarEstado(Solicitud solicitud, String nuevoEstado) {
         JsonObject body = new JsonObject();
         body.addProperty("jsonrpc", "2.0");
@@ -142,7 +155,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
                     Log.d("ADAPTER", "Respuesta exitosa de Odoo: " + response.body());
                     Toast.makeText(context, "Estado actualizado", Toast.LENGTH_SHORT).show();
                     int index = lista.indexOf(solicitud);
-                    if (index != -1) notifyItemChanged(index);
+                    if (index != -1) notifyItemChanged(index); // Refresca item
                 } else {
                     Toast.makeText(context, "Error al actualizar estado", Toast.LENGTH_SHORT).show();
                     Log.e("ADAPTER", "Respuesta fallida: " + response.code() + " - " + response.message());
@@ -157,6 +170,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
         });
     }
 
+    // Método que llama a Odoo para eliminar una solicitud
     private void borrarSolicitud(Solicitud solicitud) {
         JsonObject body = new JsonObject();
         body.addProperty("jsonrpc", "2.0");
@@ -171,7 +185,7 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful()) {
                     lista.remove(solicitud);
-                    notifyDataSetChanged();
+                    notifyDataSetChanged(); // Refresca la lista
                     Toast.makeText(context, "Solicitud eliminada", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(context, "Error al eliminar solicitud", Toast.LENGTH_SHORT).show();
@@ -185,16 +199,19 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
         });
     }
 
+    // Método para capitalizar el texto (primera letra mayúscula)
     private String capitalize(String texto) {
         if (texto == null || texto.isEmpty()) return texto;
         return texto.substring(0, 1).toUpperCase() + texto.substring(1).toLowerCase();
     }
 
+    // Cantidad de elementos a mostrar
     @Override
     public int getItemCount() {
         return lista.size();
     }
 
+    // ViewHolder: contiene referencias a los elementos visuales de cada tarjeta
     public static class SolicitudViewHolder extends RecyclerView.ViewHolder {
         TextView tvFecha, tvUsuario, tvMensaje, tvProducto;
         Spinner spinnerEstado;

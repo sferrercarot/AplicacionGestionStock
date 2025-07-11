@@ -30,15 +30,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// Adaptador para mostrar productos en un RecyclerView
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
 
     private final Context context;
     private final int uid;
     private final String password;
 
+    // Lista original (sin filtros) y lista filtrada (lo que se muestra)
     private final List<Product> listaOriginal;
     private List<Product> listaFiltrada;
 
+    // Constructor: guarda el contexto, datos de usuario y copia las listas
     public ProductsAdapter(Context context, List<Product> data, int uid, String password) {
         this.context = context;
         this.uid = uid;
@@ -47,6 +50,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
         this.listaFiltrada = new ArrayList<>(data);
     }
 
+    // Crea el layout para cada fila del RecyclerView
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -55,20 +59,24 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
         return new VH(v);
     }
 
+    // Asigna los valores a los elementos visuales de cada fila
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         Product p = listaFiltrada.get(position);
 
-        holder.tvName.setText(p.name);
-        holder.tvQty.setText("Stock: " + p.cantidad_stock);
+        String fullName = p.name + " " + p.getTipo() + " - " + p.getGramaje() + " - " + p.getMedida();
+        holder.tvName.setText(fullName.trim());
+        holder.tvQty.setText("Stock: " + p.cantidad_actual);
 
-        if (p.stock_bajo) {
+        // Muestra aviso si el stock está bajo
+        if (p.cantidad_minima) {
             holder.tvWarning.setVisibility(View.VISIBLE);
             holder.tvWarning.setText("¡Stock por debajo del mínimo!");
         } else {
             holder.tvWarning.setVisibility(View.GONE);
         }
 
+        // Muestra la imagen del producto (decodificando Base64 si es necesario)
         String base64Image = p.getImage();
         if (base64Image != null && !base64Image.isEmpty()) {
             try {
@@ -89,39 +97,55 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
             holder.productImage.setImageResource(R.drawable.stock_box);
         }
 
+        // Al pulsar en el producto se abre la pantalla de detalle
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
             intent.putExtra("id", p.id);
             intent.putExtra("name", p.name);
-            intent.putExtra("cantidad_stock", p.cantidad_stock);
+            intent.putExtra("tipo", p.getTipo());
+            intent.putExtra("gramaje", p.getGramaje());
+            intent.putExtra("medida", p.getMedida());
+            intent.putExtra("categoria", p.getCategoria());
+            intent.putExtra("cantidad_stock", p.cantidad_actual);
+            intent.putExtra("cantidad_minima", p.isCantidad_minima());
+            intent.putExtra("image", p.getImage());
             intent.putExtra("uid", uid);
             intent.putExtra("password", password);
-            intent.putExtra("image", p.getImage());
             context.startActivity(intent);
         });
 
+        holder.btnPlus.setVisibility(View.GONE);
+        holder.btnMinus.setVisibility(View.GONE);
+
+/*
+        // Botón "+" para incrementar el stock
         holder.btnPlus.setOnClickListener(v -> {
-            int nuevaCantidad = p.cantidad_stock + 1;
-            p.cantidad_stock = nuevaCantidad;
+            int nuevaCantidad = p.cantidad_actual + 1;
+            p.cantidad_actual = nuevaCantidad;
             holder.tvQty.setText("Stock: " + nuevaCantidad);
-            actualizarStockEnOdoo(p.id, nuevaCantidad);
+            actualizarStockEnOdoo(p.id, nuevaCantidad); // Sincroniza con Odoo
         });
 
+        // Botón "-" para disminuir el stock (si es mayor que 0)
         holder.btnMinus.setOnClickListener(v -> {
-            if (p.cantidad_stock > 0) {
-                int nuevaCantidad = p.cantidad_stock - 1;
-                p.cantidad_stock = nuevaCantidad;
+            if (p.cantidad_actual > 0) {
+                int nuevaCantidad = p.cantidad_actual - 1;
+                p.cantidad_actual = nuevaCantidad;
                 holder.tvQty.setText("Stock: " + nuevaCantidad);
-                actualizarStockEnOdoo(p.id, nuevaCantidad);
+                actualizarStockEnOdoo(p.id, nuevaCantidad); // Sincroniza con Odoo
             }
         });
+*/
+
     }
 
+    // Devuelve el número de productos visibles (filtrados)
     @Override
     public int getItemCount() {
         return listaFiltrada.size();
     }
 
+    // Filtra la lista de productos por categorías seleccionadas
     public void filtrarPorCategorias(List<String> categorias) {
         if (categorias == null || categorias.isEmpty()) {
             listaFiltrada = new ArrayList<>(listaOriginal);
@@ -134,9 +158,10 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
             }
             listaFiltrada = resultado;
         }
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // Refresca la lista
     }
 
+    // ViewHolder: contiene las vistas de cada fila de producto
     static class VH extends RecyclerView.ViewHolder {
         TextView tvName, tvQty, tvWarning;
         ImageView productImage;
@@ -153,6 +178,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
         }
     }
 
+    // Actualiza el stock en el backend (Odoo)
     private void actualizarStockEnOdoo(int productId, int nuevaCantidad) {
         JsonObject request = OdooRequestBuilder.buildWriteRequest(
                 "gestion_almacen", uid, password,
@@ -170,10 +196,13 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (!response.isSuccessful()) {
+                    // Si falla la actualización, podría añadirse lógica extra
                 } else {
                     JsonObject body = response.body();
                     if (body != null && body.has("error")) {
+                        // Se podría mostrar mensaje si hay error
                     } else if (body != null && body.has("result")) {
+                        // Se ha actualizado correctamente
                     }
                 }
             }
@@ -185,7 +214,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
         });
     }
 
-
+    // Reemplaza los datos del adaptador con una nueva lista de productos
     public void actualizarDatos(List<Product> nuevosProductos) {
         listaOriginal.clear();
         listaOriginal.addAll(nuevosProductos);
@@ -193,6 +222,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
         listaFiltrada.clear();
         listaFiltrada.addAll(nuevosProductos);
 
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // Refresca la vista
     }
 }
