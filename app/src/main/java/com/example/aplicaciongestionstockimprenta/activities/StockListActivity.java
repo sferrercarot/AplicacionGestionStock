@@ -1,5 +1,6 @@
 package com.example.aplicaciongestionstockimprenta.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -47,9 +48,9 @@ public class StockListActivity extends AppCompatActivity {
     private String usuario;
     private String password;
 
-    private boolean filtroAlmacenPapelActivo = false;
-    private boolean filtroImpresionDigitalActivo = false;
-    private boolean filtroImpresionOffsetActivo = false;
+    private boolean filtroPaletActivo = false;
+    private boolean filtroResmaActivo = false;
+    private boolean filtroSobresActivo = false;
     private boolean filtroOtrosActivo = false;
 
     @Override
@@ -89,10 +90,15 @@ public class StockListActivity extends AppCompatActivity {
             // Infla el layout del popup desde XML
             View popupView = getLayoutInflater().inflate(R.layout.bottom_sheet_filtros, null);
 
-            // Crea la ventana emergente
+            // Obtener el ancho de la pantalla
+            int anchoPantalla = getResources().getDisplayMetrics().widthPixels;
+            // Establecer ancho del popup al 80% del ancho pantalla
+            int anchoPopup = (int) (anchoPantalla * 0.6);
+
+            // Crea la ventana emergente con ancho ajustado
             PopupWindow popupWindow = new PopupWindow(
                     popupView,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    anchoPopup,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     true
             );
@@ -101,34 +107,42 @@ public class StockListActivity extends AppCompatActivity {
             popupWindow.showAsDropDown(v); // Muestra debajo del botón
 
             // Referencias a los checkboxes y botón de aplicar
-            CheckBox filtroAlmacenPapel = popupView.findViewById(R.id.filtroAlmacenPapel);
-            CheckBox filtroImpresionDigital = popupView.findViewById(R.id.filtroImpresionDigital);
-            CheckBox filtroImpresionOffset = popupView.findViewById(R.id.filtroImpresionOffset);
+            CheckBox filtroPalet = popupView.findViewById(R.id.filtroPalet);
+            CheckBox filtroResma = popupView.findViewById(R.id.filtroResma);
+            CheckBox filtroSobres = popupView.findViewById(R.id.filtroSobres);
             CheckBox filtroOtros = popupView.findViewById(R.id.filtroOtros);
             Button btnAplicar = popupView.findViewById(R.id.btnAplicarFiltros);
 
             // Marca los filtros previamente activos
-            filtroAlmacenPapel.setChecked(filtroAlmacenPapelActivo);
-            filtroImpresionDigital.setChecked(filtroImpresionDigitalActivo);
-            filtroImpresionOffset.setChecked(filtroImpresionOffsetActivo);
+            filtroPalet.setChecked(filtroPaletActivo);
+            filtroResma.setChecked(filtroResmaActivo);
+            filtroSobres.setChecked(filtroSobresActivo);
             filtroOtros.setChecked(filtroOtrosActivo);
 
             // Aplica los filtros seleccionados y actualiza el adaptador
             btnAplicar.setOnClickListener(aplicar -> {
-                filtroAlmacenPapelActivo = filtroAlmacenPapel.isChecked();
-                filtroImpresionDigitalActivo = filtroImpresionDigital.isChecked();
-                filtroImpresionOffsetActivo = filtroImpresionOffset.isChecked();
+                filtroPaletActivo = filtroPalet.isChecked();
+                filtroResmaActivo = filtroResma.isChecked();
+                filtroSobresActivo = filtroSobres.isChecked();
                 filtroOtrosActivo = filtroOtros.isChecked();
 
                 List<String> categoriasSeleccionadas = new ArrayList<>();
-                if (filtroAlmacenPapelActivo) categoriasSeleccionadas.add("Almacen General de Papel");
-                if (filtroImpresionDigitalActivo) categoriasSeleccionadas.add("Impresión Digital");
-                if (filtroImpresionOffsetActivo) categoriasSeleccionadas.add("Impresión Offset");
+                if (filtroPaletActivo) categoriasSeleccionadas.add("Palet");
+                if (filtroResmaActivo) categoriasSeleccionadas.add("Resma");
+                if (filtroSobresActivo) categoriasSeleccionadas.add("Sobres");
                 if (filtroOtrosActivo) categoriasSeleccionadas.add("Otros");
 
                 adapter.filtrarPorCategorias(categoriasSeleccionadas);
                 popupWindow.dismiss();
             });
+        });
+
+        Button btnNuevoPapel = findViewById(R.id.btnNuevoPapel);
+        btnNuevoPapel.setOnClickListener(np -> {
+            Intent intent = new Intent(StockListActivity.this, NuevoPapelActivity.class);
+            intent.putExtra("uid", uid);
+            intent.putExtra("password", password);
+            startActivity(intent);
         });
     }
 

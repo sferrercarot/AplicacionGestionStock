@@ -95,8 +95,11 @@ public class BuzonSolicitudesActivity extends AppCompatActivity {
                             String producto = (productoElement != null && !productoElement.isJsonNull())
                                     ? productoElement.getAsString() : "Desconocido";
 
+                            String tipo = (productoElement != null && !productoElement.isJsonNull())
+                                    ? productoElement.getAsString() : "Desconocido";
+
                             // Añade la solicitud a la lista
-                            listaSolicitudes.add(new Solicitud(id, mensaje, fecha, usuario, estado, producto));
+                            listaSolicitudes.add(new Solicitud(id, mensaje, fecha, usuario, estado, producto, tipo));
                         }
 
                         // Notifica al adaptador que los datos han cambiado para que actualice la vista

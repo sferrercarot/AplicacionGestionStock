@@ -19,21 +19,19 @@ import com.example.aplicaciongestionstockimprenta.R;
 import com.example.aplicaciongestionstockimprenta.network.RetrofitClient;
 import com.google.gson.JsonObject;
 
-import java.util.concurrent.TimeUnit;
+import java.text.NumberFormat;
+import java.util.Locale;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProductDetailActivity extends AppCompatActivity {
 
     private ImageView imgProductoDetalle;
     private TextView txtTituloProducto, tvCurrentStock, tvCategoria;
-    private EditText etNewStock;
-    private Button btnUpdateStock;
+    private EditText etEntradaStock, etSalidaStock;
+    private Button btnEntradaStock, btnSalidaStock;
 
     private int productId, currentStock, uid;
     private String productName, password, imageUrl;
@@ -42,7 +40,6 @@ public class ProductDetailActivity extends AppCompatActivity {
     private boolean cantidadMinima;
 
     private OdooService service;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +51,18 @@ public class ProductDetailActivity extends AppCompatActivity {
         txtTituloProducto = findViewById(R.id.txtTituloProducto);
         tvCurrentStock = findViewById(R.id.tvCurrentStock);
         tvCategoria = findViewById(R.id.tvCategoria);
-        etNewStock = findViewById(R.id.etNewStock);
-        btnUpdateStock = findViewById(R.id.btnUpdateStock);
+        etEntradaStock = findViewById(R.id.etEntradaStock);
+        etSalidaStock = findViewById(R.id.etSalidaStock);
+        btnEntradaStock = findViewById(R.id.btnEntradaStock);
+        btnSalidaStock = findViewById(R.id.btnSalidaStock);
 
         // Obtener datos del Intent
         productId = getIntent().getIntExtra("id", -1);
         productName = getIntent().getStringExtra("name");
-        currentStock = getIntent().getIntExtra("cantidad_stock", 0);
+        currentStock = getIntent().getIntExtra("cantidad_actual", 0);
+        NumberFormat nf = NumberFormat.getInstance(new Locale("es", "ES"));
+        String stockFormateado = nf.format(currentStock);
+
         uid = getIntent().getIntExtra("uid", -1);
         password = getIntent().getStringExtra("password");
         imageUrl = getIntent().getStringExtra("image");
@@ -78,17 +80,17 @@ public class ProductDetailActivity extends AppCompatActivity {
             tituloCompleto += " " + tipo;
         }
         if (gramaje > 0) {
-            tituloCompleto += " - " + gramaje;
+            tituloCompleto += " - " + gramaje + "gr";
         }
-        if (medida != null && !medida.isEmpty()) {
-            tituloCompleto += " - " + medida;
+
+        Log.d("DEBUG_MEDIDA", "Valor de medida: '" + medida + "'");
+        if (medida != null && !medida.isEmpty() && !medida.equals("0")) {
+            tituloCompleto += " - " + medida + "cm";
         }
         txtTituloProducto.setText(tituloCompleto);
 
-        tvCurrentStock.setText("Stock actual: " + currentStock);
+        tvCurrentStock.setText("Stock actual: " + stockFormateado);
         tvCategoria.setText(categoria != null ? categoria : "");  // Por si viene null
-
-
 
 
         // Verifica que todos los datos necesarios estén presentes
@@ -119,26 +121,27 @@ public class ProductDetailActivity extends AppCompatActivity {
         service = RetrofitClient.getOdooService();
 
         // Acción al pulsar el botón "Actualizar stock"
-        btnUpdateStock.setOnClickListener(v -> {
-            String newStockStr = etNewStock.getText().toString().trim();
-
-            // Validación: campo vacío
-            if (newStockStr.isEmpty()) {
-                Toast.makeText(this, "Introduce un valor de stock", Toast.LENGTH_SHORT).show();
+        btnEntradaStock.setOnClickListener(v -> {
+            String entradaStr = etEntradaStock.getText().toString();
+            int entrada = entradaStr.isEmpty() ? 0 : Integer.parseInt(entradaStr);
+            if (entrada <= 0) {
+                Toast.makeText(this, "Introduce un valor positivo para entrada", Toast.LENGTH_SHORT).show();
                 return;
             }
+            int nuevoStock = currentStock + entrada;
+            actualizarStockEnOdoo(nuevoStock);
+        });
 
-            // Validación: conversión a número
-            int newStock;
-            try {
-                newStock = Integer.parseInt(newStockStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Número no válido", Toast.LENGTH_SHORT).show();
+        btnSalidaStock.setOnClickListener(v -> {
+            String salidaStr = etSalidaStock.getText().toString();
+            int salida = salidaStr.isEmpty() ? 0 : Integer.parseInt(salidaStr);
+            if (salida <= 0) {
+                Toast.makeText(this, "Introduce un valor positivo para salida", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            // Llama al método que actualiza el stock en Odoo
-            actualizarStockEnOdoo(newStock);
+            int nuevoStock = currentStock - salida;
+            if (nuevoStock < 0) nuevoStock = 0;
+            actualizarStockEnOdoo(nuevoStock);
         });
     }
 
@@ -148,13 +151,12 @@ public class ProductDetailActivity extends AppCompatActivity {
                 "gestion_almacen", uid, password,
                 "gestion_almacen.producto",
                 productId,
-                "cantidad_stock",
+                "cantidad_actual",
                 nuevoStock
         );
 
         Log.d("PRODUCT_DETAIL", "Actualizando stock: " + body.toString());
 
-        // Encola la petición con Retrofit
         service.genericWrite(body).enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {

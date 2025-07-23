@@ -17,6 +17,11 @@
         <item>Resuelto</item>
     </string-array>
 
+    <string-array name="categorias_papel">
+        <item>Pelat</item>
+        <item>Resma</item>
+    </string-array>
+
 
 
     <string name="mensaje_default">Cargando…</string>

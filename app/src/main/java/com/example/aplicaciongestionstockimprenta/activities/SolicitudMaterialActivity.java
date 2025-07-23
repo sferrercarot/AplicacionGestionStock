@@ -1,5 +1,7 @@
 package com.example.aplicaciongestionstockimprenta.activities;
 
+import static com.example.aplicaciongestionstockimprenta.network.OdooRequestBuilder.buildSearchReadRequest;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -36,7 +38,7 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
     private List<Product> listaProductos = new ArrayList<>();
     private int productoSeleccionadoId = -1;
     private int uid;
-    private String password;
+    private String password, db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
         setContentView(R.layout.activity_solicitud_material);
 
         // Obtiene los datos de sesión del usuario
+        db = getIntent().getStringExtra("db");
         uid = getIntent().getIntExtra("uid", -1);
         password = getIntent().getStringExtra("password");
 
@@ -62,36 +65,71 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
         btnEnviarSolicitud.setOnClickListener(v -> enviarSolicitud());
     }
 
-    // Método que obtiene la lista de productos del backend (Odoo)
     private void cargarProductos() {
-        // Cuerpo básico JSON-RPC para la petición
-        JsonObject body = new JsonObject();
-        body.addProperty("jsonrpc", "2.0");
-        body.addProperty("method", "call");
-        body.add("params", new JsonObject()); // sin filtros
+        // Define los campos que quieres obtener, incluyendo "tipo"
+        String[] fields = {"name", "tipo", "gramaje", "medida", "cantidad_actual", "cantidad_minima", "image", "categoria"};
 
-        // Llama al endpoint que devuelve los productos
+        // Construye el cuerpo JSON para la petición usando tu función buildSearchReadRequest
+        JsonObject body = buildSearchReadRequest(db, uid, password, "gestion_almacen.producto", fields);
+
         service.obtenerProductos(body).enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d("PRODUCTOS", "Productos obtenidos correctamente");
 
-                    // Accede al array de productos dentro del JSON de respuesta
                     JsonObject outerResult = response.body().getAsJsonObject("result");
                     JsonArray results = outerResult.getAsJsonArray("result");
 
-                    // Recorre cada producto y lo añade a la lista local
+                    listaProductos.clear();  // Limpia lista antes de añadir nuevos productos
+
                     for (JsonElement elem : results) {
                         JsonObject obj = elem.getAsJsonObject();
+
+                        // Log para ver el contenido bruto del campo "tipo"
+                        if (obj.has("tipo")) {
+                            Log.d("TIPO_BRUTO", "tipo raw JSON: " + obj.get("tipo").toString());
+                        } else {
+                            Log.d("TIPO_BRUTO", "tipo raw JSON: NO TIENE CAMPO tipo");
+                        }
+
                         int id = obj.get("id").getAsInt();
-                        String name = obj.get("name").getAsString();
-                        String tipo = obj.get("tipo").getAsString();
-                        int gramaje = obj.get("gramaje").getAsInt();
-                        String medida = obj.get("medida").getAsString();
-                        int cantidad_actual = obj.get("cantidad_actual").getAsInt();
-                        boolean cantidad_minima = obj.get("cantidad_minima").getAsBoolean();
-                        String image = obj.get("image").getAsString();
+                        String name = obj.has("name") && !obj.get("name").isJsonNull()
+                                ? obj.get("name").getAsString()
+                                : "Desconocido";
+
+
+
+                        if (obj.has("tipo")) {
+                            Log.d("TIPO_BRUTO", "tipo raw JSON: " + obj.get("tipo").toString());
+                        } else {
+                            Log.d("TIPO_BRUTO", "tipo raw JSON: NO TIENE CAMPO tipo");
+                        }
+
+                        String tipo = obj.has("tipo") && !obj.get("tipo").isJsonNull()
+                                ? obj.get("tipo").getAsString()
+                                : "NoVa";
+
+                        int gramaje = obj.has("gramaje") && !obj.get("gramaje").isJsonNull()
+                                ? obj.get("gramaje").getAsInt()
+                                : 0;
+
+                        String medida = obj.has("medida") && !obj.get("medida").isJsonNull()
+                                ? obj.get("medida").getAsString()
+                                : "Desconocido";
+
+                        int cantidad_actual = obj.has("cantidad_actual") && !obj.get("cantidad_actual").isJsonNull()
+                                ? obj.get("cantidad_actual").getAsInt()
+                                : 0;
+
+                        boolean cantidad_minima = obj.has("cantidad_minima") && !obj.get("cantidad_minima").isJsonNull()
+                                ? obj.get("cantidad_minima").getAsBoolean()
+                                : false;
+
+                        String image = obj.has("image") && !obj.get("image").isJsonNull()
+                                ? obj.get("image").getAsString()
+                                : "";
+
                         String categoria = obj.has("categoria") && !obj.get("categoria").isJsonNull()
                                 ? obj.get("categoria").getAsString()
                                 : "Otros";
@@ -99,7 +137,6 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
                         listaProductos.add(new Product(id, name, tipo, gramaje, medida, categoria, cantidad_actual, cantidad_minima, image));
                     }
 
-                    // Muestra los productos en el Spinner
                     ArrayAdapter<Product> adapter = new ArrayAdapter<>(
                             SolicitudMaterialActivity.this,
                             android.R.layout.simple_spinner_item,
@@ -108,7 +145,6 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     spinnerProductos.setAdapter(adapter);
 
-                    // Guarda el ID del producto seleccionado
                     spinnerProductos.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
@@ -122,7 +158,6 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
                     });
 
                 } else {
-                    // En caso de error de servidor
                     try {
                         String errorMsg = response.errorBody() != null ? response.errorBody().string() : "sin errorBody";
                         Log.e("PRODUCTOS", "Error al cargar productos - código: " + response.code() + " - error: " + errorMsg);
@@ -135,14 +170,13 @@ public class SolicitudMaterialActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                // Si falla la conexión
                 Log.e("PRODUCTOS", "Error de red al cargar productos", t);
                 Toast.makeText(SolicitudMaterialActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Método que envía la solicitud de material al backend
+
     private void enviarSolicitud() {
         String mensaje = etMensajeSolicitud.getText().toString().trim();
 

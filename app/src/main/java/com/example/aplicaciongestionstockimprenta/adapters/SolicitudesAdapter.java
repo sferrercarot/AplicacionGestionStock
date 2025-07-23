@@ -64,7 +64,11 @@ public class SolicitudesAdapter extends RecyclerView.Adapter<SolicitudesAdapter.
         holder.tvFecha.setText(solicitud.getFecha());
         holder.tvUsuario.setText(solicitud.getUsuario());
         holder.tvMensaje.setText(solicitud.getMensaje());
-        holder.tvProducto.setText(solicitud.getProducto());
+
+        String producto = solicitud.getProducto();
+        String tipo = solicitud.getTipo(); // Ajusta el nombre del método según tu modelo
+        Log.d("SolicitudAdapter", "Producto: " + producto + ", Tipo: " + tipo);
+        holder.tvProducto.setText(producto + " - " + tipo);
 
         // Configura el Spinner con los posibles estados
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,

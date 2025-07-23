@@ -60,6 +60,10 @@
             android:name=".activities.SolicitudMaterialActivity"
             android:exported="true" />
 
+        <activity
+            android:name=".activities.NuevoPapelActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>

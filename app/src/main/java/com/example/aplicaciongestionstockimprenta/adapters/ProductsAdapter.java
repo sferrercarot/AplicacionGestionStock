@@ -26,6 +26,9 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -64,19 +67,34 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
     public void onBindViewHolder(@NonNull VH holder, int position) {
         Product p = listaFiltrada.get(position);
 
-        String fullName = p.name + " " + p.getTipo() + " - " + p.getGramaje() + " - " + p.getMedida();
-        holder.tvName.setText(fullName.trim());
-        holder.tvQty.setText("Stock: " + p.cantidad_actual);
+        // Formateador de número para cantidad_actual
+        NumberFormat nf = NumberFormat.getInstance(new Locale("es", "ES"));
+        String stockFormateado = nf.format(p.cantidad_actual);
+        holder.tvQty.setText("Stock: " + stockFormateado);
 
-        // Muestra aviso si el stock está bajo
-        if (p.cantidad_minima) {
-            holder.tvWarning.setVisibility(View.VISIBLE);
-            holder.tvWarning.setText("¡Stock por debajo del mínimo!");
+        // Mostrar campos dependiendo de la categoría
+        if (p.getCategoria().equalsIgnoreCase("Sobres")) {
+            // Solo mostrar nombre y tipo en la línea principal
+            String fullName = p.name + " - " + p.getTipo();
+            holder.tvName.setText(fullName.trim());
+
+            // Ocultar campos que no aplican
+            holder.tvWarning.setVisibility(View.GONE); // no hay cantidad mínima en sobres
         } else {
-            holder.tvWarning.setVisibility(View.GONE);
+            // Mostrar todos los campos
+            String fullName = p.name + " " + p.getTipo() + " - " + p.getGramaje() + "gr - " + p.getMedida() + "cm";
+            holder.tvName.setText(fullName.trim());
+
+            // Mostrar advertencia si está por debajo del stock mínimo
+            if (p.cantidad_minima) {
+                holder.tvWarning.setVisibility(View.VISIBLE);
+                holder.tvWarning.setText("¡Stock por debajo del mínimo!");
+            } else {
+                holder.tvWarning.setVisibility(View.GONE);
+            }
         }
 
-        // Muestra la imagen del producto (decodificando Base64 si es necesario)
+        // Imagen del producto
         String base64Image = p.getImage();
         if (base64Image != null && !base64Image.isEmpty()) {
             try {
@@ -106,7 +124,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.VH> {
             intent.putExtra("gramaje", p.getGramaje());
             intent.putExtra("medida", p.getMedida());
             intent.putExtra("categoria", p.getCategoria());
-            intent.putExtra("cantidad_stock", p.cantidad_actual);
+            intent.putExtra("cantidad_actual", p.cantidad_actual);
             intent.putExtra("cantidad_minima", p.isCantidad_minima());
             intent.putExtra("image", p.getImage());
             intent.putExtra("uid", uid);

@@ -15,26 +15,26 @@
         android:textSize="18sp" />
 
     <CheckBox
-        android:id="@+id/filtroAlmacenPapel"
-        android:layout_width="wrap_content"
+        android:id="@+id/filtroPalet"
+        android:layout_width="84dp"
         android:layout_height="wrap_content"
-        android:text="Almacen General de Papel" />
+        android:text="Palet" />
 
     <CheckBox
-        android:id="@+id/filtroImpresionDigital"
-        android:layout_width="wrap_content"
+        android:id="@+id/filtroResma"
+        android:layout_width="92dp"
         android:layout_height="wrap_content"
-        android:text="Impresión Digital" />
+        android:text="Resma" />
 
     <CheckBox
-        android:id="@+id/filtroImpresionOffset"
-        android:layout_width="wrap_content"
+        android:id="@+id/filtroSobres"
+        android:layout_width="92dp"
         android:layout_height="wrap_content"
-        android:text="Impresión Offset" />
+        android:text="Sobres" />
 
     <CheckBox
         android:id="@+id/filtroOtros"
-        android:layout_width="wrap_content"
+        android:layout_width="84dp"
         android:layout_height="wrap_content"
         android:text="Otros" />
 
